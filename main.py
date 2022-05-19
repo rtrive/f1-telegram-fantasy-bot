@@ -1,23 +1,56 @@
+import os
+import sys
 from time import sleep
+from dotenv import load_dotenv
+
 from selenium import webdriver
+
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 
-options = webdriver.ChromeOptions()
-options.add_argument('--no-sandbox')
-options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36')
-driver = webdriver.Chrome(options=options)
-driver.get("https://account.formula1.com/#/en/login")
-cookie_accept = driver.find_element_by_id("truste-consent-button").click()
-elem = driver.find_element_by_name("Login")
-elem = driver.find_element(by=By.NAME, value="Login")
-elem.clear()
-elem.send_keys("")
-elem = driver.find_element(by=By.NAME, value="Password")
-elem.clear()
-elem.send_keys("")
-elem.send_keys(Keys.RETURN)
-sleep(10)
-driver.get_screenshot_as_file("./test.png")
-driver.close()
+def create_diver():
+    options = webdriver.ChromeOptions()
+    options.add_argument('--disable-blink-features=AutomationControlled')
+    options.add_argument("--disable-extensions")
+    options.add_experimental_option('useAutomationExtension', False)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_argument('--no-sandbox')
+    driver = webdriver.Chrome(options=options)
+    driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    return driver
+
+
+def go_to_page(driver, url):
+    driver.get(url)
+
+
+def click_button_by_id(driver, by_type, button_id):
+    driver.find_element(by=by_type, value=button_id).click()
+
+
+def fill_text_area(driver, by_type, element_value, value):
+    elem = driver.find_element(by=by_type, value=element_value)
+    elem.clear()
+    elem.send_keys(value)
+    return elem
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    username = os.getenv("USERNAME")
+    if not username:
+        sys.exit("Missing username")
+    password = os.getenv("PASSWORD")
+    if not password:
+        sys.exit("Missing password")
+    driver = create_diver()
+    go_to_page(driver, "https://account.formula1.com/#/en/login")
+    click_button_by_id(driver, By.ID, "truste-consent-button")
+
+    fill_text_area(driver, By.NAME, "Login", username)
+
+    elem = fill_text_area(driver, By.NAME, "Password", password)
+    elem.send_keys(Keys.RETURN)
+    sleep(30)
+    driver.close()
