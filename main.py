@@ -7,11 +7,13 @@ from dotenv import load_dotenv
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
+
 def manipulate_cookies(cookies: List[dict]) -> dict:
     new_cookies = {}
     for cookie in cookies:
         new_cookies[cookie["name"]] = cookie["value"]
     return new_cookies
+
 
 def create_diver() -> uc_chrome:
     options = uc_chrome_options()
