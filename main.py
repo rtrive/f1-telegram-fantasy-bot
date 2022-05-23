@@ -29,9 +29,7 @@ def click_button_by_id(driver: uc_chrome, by_type: str, button_id: str) -> None:
     driver.find_element(by=by_type, value=button_id).click()
 
 
-def fill_text_area(
-    driver: uc_chrome, by_type: str, element_value: str, value
-) -> Any:
+def fill_text_area(driver: uc_chrome, by_type: str, element_value: str, value) -> Any:
     elem = driver.find_element(by=by_type, value=element_value)
     elem.clear()
     elem.send_keys(value)
