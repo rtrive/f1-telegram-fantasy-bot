@@ -1,8 +1,8 @@
 import os
 import sys
-from typing import Any, Literal, List
-from undetected_chromedriver import Chrome as uc_chrome
-from undetected_chromedriver import ChromeOptions as uc_chrome_options
+from typing import Any, List
+from undetected_chromedriver import Chrome as uc_chrome  # type: ignore
+from undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
 from dotenv import load_dotenv
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -25,12 +25,12 @@ def go_to_page(driver: uc_chrome, url: str) -> None:
     driver.get(url)
 
 
-def click_button_by_id(driver: uc_chrome, by_type: Literal, button_id: str) -> None:
+def click_button_by_id(driver: uc_chrome, by_type: str, button_id: str) -> None:
     driver.find_element(by=by_type, value=button_id).click()
 
 
 def fill_text_area(
-    driver: uc_chrome, by_type: Literal, element_value: str, value
+    driver: uc_chrome, by_type: str, element_value: str, value
 ) -> Any:
     elem = driver.find_element(by=by_type, value=element_value)
     elem.clear()
