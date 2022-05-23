@@ -1,13 +1,17 @@
 import os
 import sys
-from typing import Any, Literal
+from typing import Any, Literal, List
 from undetected_chromedriver import Chrome as uc_chrome
 from undetected_chromedriver import ChromeOptions as uc_chrome_options
-from time import sleep
 from dotenv import load_dotenv
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
+def manipulate_cookies(cookies: List[dict]) -> dict:
+    new_cookies = {}
+    for cookie in cookies:
+        new_cookies[cookie["name"]] = cookie["value"]
+    return new_cookies
 
 def create_diver() -> uc_chrome:
     options = uc_chrome_options()
@@ -51,5 +55,6 @@ if __name__ == "__main__":
 
     elem = fill_text_area(driver, By.NAME, "Password", password)
     elem.send_keys(Keys.RETURN)
-    sleep(30)
+    cookies = driver.get_cookies()
+    cookies = manipulate_cookies(cookies)
     driver.close()
