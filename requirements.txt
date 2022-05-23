@@ -4,3 +4,4 @@ undetected_chromedriver
 black
 flake8
 mypy
+python-telegram-bot
