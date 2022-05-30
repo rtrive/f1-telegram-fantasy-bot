@@ -1,12 +1,15 @@
 import os
 import sys
+import json
+from time import sleep
 from typing import Any, List
-from undetected_chromedriver import Chrome as uc_chrome  # type: ignore
+from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
+from seleniumwire.utils import decode
 from dotenv import load_dotenv
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from telegram_bot import Bot
+
 
 F1_FANTASY_DRIVER_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
@@ -20,6 +23,7 @@ def manipulate_cookies(cookies: List[dict]) -> dict:
 
 def create_diver() -> uc_chrome:
     options = uc_chrome_options()
+    options.add_argument("--headless")
     driver = uc_chrome(options=options)
     return driver
 
@@ -57,10 +61,25 @@ if __name__ == "__main__":
     fill_text_area(driver, By.NAME, "Login", username)
 
     elem = fill_text_area(driver, By.NAME, "Password", password)
-    elem.send_keys(Keys.RETURN)
     cookies = driver.get_cookies()
-    cookies = manipulate_cookies(cookies)
+
+    sleep(20)
+
+    for resp in driver.requests:
+        if (
+            resp.url
+            == "https://api.formula1.com/v2/account/subscriber/authenticate/by-password"
+        ):
+            body = json.loads(
+                decode(
+                    resp.response.body,
+                    resp.response.headers.get("Content-Encoding", "identity"),
+                )
+            )
     driver.close()
+    cookies = manipulate_cookies(cookies)
+    cookies["login-session"] = json.dumps({"data": body["data"]})
+    print("Ready to be used with bot")
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
     if not password:
         sys.exit("Missing telegram api key")
