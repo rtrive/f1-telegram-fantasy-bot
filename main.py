@@ -6,6 +6,7 @@ from undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: 
 from dotenv import load_dotenv
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from telegram_bot import Bot
 
 
 def manipulate_cookies(cookies: List[dict]) -> dict:
@@ -58,3 +59,7 @@ if __name__ == "__main__":
     cookies = driver.get_cookies()
     cookies = manipulate_cookies(cookies)
     driver.close()
+    telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
+    if not password:
+        sys.exit("Missing telegram api key")
+    Bot(telegram_bot_api_key)
