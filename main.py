@@ -8,6 +8,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from telegram_bot import Bot
 
+F1_FANTASY_DRIVER_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
+
 
 def manipulate_cookies(cookies: List[dict]) -> dict:
     new_cookies = {}
@@ -48,7 +50,7 @@ if __name__ == "__main__":
     driver = create_diver()
     go_to_page(
         driver,
-        "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F",  # noqa: E501
+        F1_FANTASY_DRIVER_URL,
     )
     click_button_by_id(driver, By.ID, "truste-consent-button")
 
@@ -62,4 +64,4 @@ if __name__ == "__main__":
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
     if not password:
         sys.exit("Missing telegram api key")
-    Bot(telegram_bot_api_key)
+    Bot(telegram_bot_api_key, cookies, F1_FANTASY_DRIVER_URL)
