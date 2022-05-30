@@ -1,3 +1,4 @@
+import requests  # type: ignore
 from typing import Optional
 from telegram import Update
 from telegram.ext import (
@@ -17,6 +18,7 @@ class Bot:
             self.application = ApplicationBuilder().token(api_key).build()
             start_handler = CommandHandler("start", self.start)
             echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), self.echo)
+            self.application.add_handler(CommandHandler("standings", self.standings))
             self.application.add_handler(start_handler)
             self.application.add_handler(echo_handler)
             self.application.run_polling()
@@ -33,3 +35,11 @@ class Bot:
         await context.bot.send_message(
             chat_id=update.effective_chat.id, text=update.message.text
         )
+
+    async def standings(self, update: Update, context: CallbackContext.DEFAULT_TYPE):
+        req = requests.get(
+            url="https://fantasy-api.formula1.com/f1/2022/league_entrants?v=1",
+            # REMEMBER TO ENCODE COOKIES
+            headers={"Cookie": self.cookies}  # THIS IS WRONG, WE NEED TO PARSE
+        )
+        print(req.json())
