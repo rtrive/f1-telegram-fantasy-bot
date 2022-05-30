@@ -10,9 +10,10 @@ from telegram.ext import (
 
 
 class Bot:
-    def __init__(self, api_key: Optional[str], cookies: dict):
+    def __init__(self, api_key: Optional[str], cookies: dict, url: str):
         try:
             self.cookies = cookies
+            self.url = url
             self.application = ApplicationBuilder().token(api_key).build()
             start_handler = CommandHandler("start", self.start)
             echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), self.echo)
