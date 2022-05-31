@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from telegram_bot import Bot
 
 
-F1_FANTASY_DRIVER_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
+F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
