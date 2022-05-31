@@ -7,6 +7,7 @@ from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ig
 from undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
 from seleniumwire.utils import decode
 from dotenv import load_dotenv
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from telegram_bot import Bot
 
@@ -61,6 +62,7 @@ if __name__ == "__main__":
     fill_text_area(driver, By.NAME, "Login", username)
 
     elem = fill_text_area(driver, By.NAME, "Password", password)
+    elem.send_keys(Keys.RETURN)
     cookies = driver.get_cookies()
 
     sleep(20)
