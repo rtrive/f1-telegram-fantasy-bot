@@ -29,12 +29,20 @@ def get_subscription_token(driver: uc_chrome) -> dict:
                 )
             )
             return body.get("data")
+    return {}
 
 
 def manipulate_cookies(cookies: List[dict]) -> str:
     new_cookies = ""
     for cookie in cookies:
-        new_cookies += f'{cookie["name"]}={urllib.parse.quote(cookie["value"])}; '
+        if (
+            cookie["name"] == "login"
+            or cookie["name"] == "login-session"
+            or cookie["name"] == "user-metadata"
+        ):
+            new_cookies += f'{cookie["name"]}={urllib.parse.quote(cookie["value"])}; '
+        else:
+            new_cookies += f'{cookie["name"]}={cookie["value"]}; '
     return new_cookies
 
 
@@ -82,9 +90,19 @@ if __name__ == "__main__":
     cookies = driver.get_cookies()
     sleep(20)
     driver.close()
-    subscription_token = json.dumps({"data": get_subscription_token(driver)})
+    subscription_token = json.dumps(
+        {
+            "data": {
+                "subscriptionToken": get_subscription_token(driver).get(
+                    "subscriptionToken"
+                )
+            }
+        },
+        separators=(",", ":"),
+    )
     cookies = manipulate_cookies(cookies)
-    cookies += f"login-session= {urllib.parse.quote(subscription_token)}"
+    cookies += f"login-session={urllib.parse.quote(subscription_token)}"
+
     print("Ready to be used with bot")
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
     if not password:

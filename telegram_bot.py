@@ -11,7 +11,7 @@ from telegram.ext import (
 
 
 class Bot:
-    def __init__(self, api_key: Optional[str], cookies: dict, url: str):
+    def __init__(self, api_key: Optional[str], cookies: str, url: str):
         try:
             self.cookies = cookies
             self.url = url
@@ -41,4 +41,5 @@ class Bot:
             url="https://fantasy-api.formula1.com/f1/2022/league_entrants?v=1",
             headers={"Cookie": self.cookies},
         )
+        print(req.request.headers)
         print(req.json())
