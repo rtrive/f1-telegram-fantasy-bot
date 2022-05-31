@@ -39,7 +39,6 @@ class Bot:
     async def standings(self, update: Update, context: CallbackContext.DEFAULT_TYPE):
         req = requests.get(
             url="https://fantasy-api.formula1.com/f1/2022/league_entrants?v=1",
-            # REMEMBER TO ENCODE COOKIES
-            headers={"Cookie": self.cookies}  # THIS IS WRONG, WE NEED TO PARSE
+            headers={"Cookie": self.cookies},
         )
         print(req.json())

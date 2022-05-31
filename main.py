@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import urllib.parse
 from time import sleep
 from typing import Any, List
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
@@ -15,10 +16,25 @@ from telegram_bot import Bot
 F1_FANTASY_DRIVER_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
 
-def manipulate_cookies(cookies: List[dict]) -> dict:
-    new_cookies = {}
+def get_subscription_token(driver: uc_chrome) -> dict:
+    for resp in driver.requests:
+        if (
+            resp.url
+            == "https://api.formula1.com/v2/account/subscriber/authenticate/by-password"
+        ):
+            body = json.loads(
+                decode(
+                    resp.response.body,
+                    resp.response.headers.get("Content-Encoding", "identity"),
+                )
+            )
+            return body.get("data")
+
+
+def manipulate_cookies(cookies: List[dict]) -> str:
+    new_cookies = ""
     for cookie in cookies:
-        new_cookies[cookie["name"]] = cookie["value"]
+        new_cookies += f'{cookie["name"]}={urllib.parse.quote(cookie["value"])}; '
     return new_cookies
 
 
@@ -64,23 +80,11 @@ if __name__ == "__main__":
     elem = fill_text_area(driver, By.NAME, "Password", password)
     elem.send_keys(Keys.RETURN)
     cookies = driver.get_cookies()
-
     sleep(20)
-
-    for resp in driver.requests:
-        if (
-            resp.url
-            == "https://api.formula1.com/v2/account/subscriber/authenticate/by-password"
-        ):
-            body = json.loads(
-                decode(
-                    resp.response.body,
-                    resp.response.headers.get("Content-Encoding", "identity"),
-                )
-            )
     driver.close()
+    subscription_token = json.dumps({"data": get_subscription_token(driver)})
     cookies = manipulate_cookies(cookies)
-    cookies["login-session"] = json.dumps({"data": body["data"]})
+    cookies += f"login-session= {urllib.parse.quote(subscription_token)}"
     print("Ready to be used with bot")
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
     if not password:
