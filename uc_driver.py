@@ -35,6 +35,10 @@ class ChromeDriver:
     def login(self, url: str, credentials: Credentials) -> None:
         self.go_to_page(url=url)
         self.click_button_by_id(by_type=By.ID, button_id="truste-consent-button")
-        self.fill_text_area(by_type=By.NAME, element_value="Login", value=credentials.username)
-        self.fill_text_area(by_type=By.NAME, element_value="Password", value=credentials.password)
+        self.fill_text_area(
+            by_type=By.NAME, element_value="Login", value=credentials.username
+        )
+        self.fill_text_area(
+            by_type=By.NAME, element_value="Password", value=credentials.password
+        )
         self.send_key(key=Keys.RETURN)
