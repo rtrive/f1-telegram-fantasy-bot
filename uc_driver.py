@@ -3,6 +3,7 @@ from undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: 
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from typing import List
+from credentials import Credentials
 
 
 class ChromeDriver:
@@ -31,9 +32,9 @@ class ChromeDriver:
     def close(self) -> None:
         self.driver.close()
 
-    def login(self, url: str, username: str, password: str) -> None:
+    def login(self, url: str, credentials: Credentials) -> None:
         self.go_to_page(url=url)
         self.click_button_by_id(by_type=By.ID, button_id="truste-consent-button")
-        self.fill_text_area(by_type=By.NAME, element_value="Login", value=username)
-        self.fill_text_area(by_type=By.NAME, element_value="Password", value=password)
+        self.fill_text_area(by_type=By.NAME, element_value="Login", value=credentials.username)
+        self.fill_text_area(by_type=By.NAME, element_value="Password", value=credentials.password)
         self.send_key(key=Keys.RETURN)

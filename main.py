@@ -3,6 +3,7 @@ import sys
 from typing import List
 from uc_driver import ChromeDriver
 from dotenv import load_dotenv
+from credentials import Credentials
 
 
 def manipulate_cookies(cookies: List[dict]) -> dict:
@@ -14,18 +15,12 @@ def manipulate_cookies(cookies: List[dict]) -> dict:
 
 if __name__ == "__main__":
     load_dotenv()
-    username = os.getenv("USERNAME")
-    if not username:
-        sys.exit("Missing username")
-    password = os.getenv("PASSWORD")
-    if not password:
-        sys.exit("Missing password")
 
     driver = ChromeDriver()
+    credentials = Credentials(username=os.getenv("USERNAME"), password=os.getenv("PASSWORD"))
     driver.login(
-        url="https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F",  # noqa: E501
-        username=username,
-        password=password,
+        url="https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F",# noqa: E501
+        credentials=credentials
     )
 
     cookies = driver.get_cookies()
