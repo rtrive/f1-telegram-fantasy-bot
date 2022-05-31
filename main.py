@@ -70,7 +70,7 @@ if __name__ == "__main__":
     driver = create_diver()
     go_to_page(
         driver,
-        F1_FANTASY_DRIVER_URL,
+        F1_FANTASY_LOGIN_URL,
     )
     click_button_by_id(driver, By.ID, "truste-consent-button")
 
