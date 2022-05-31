@@ -41,5 +41,4 @@ class Bot:
             url="https://fantasy-api.formula1.com/f1/2022/league_entrants?v=1",
             headers={"Cookie": self.cookies},
         )
-        print(req.request.headers)
         print(req.json())
