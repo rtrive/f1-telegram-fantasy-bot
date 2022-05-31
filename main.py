@@ -105,6 +105,6 @@ if __name__ == "__main__":
 
     print("Ready to be used with bot")
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
-    if not password:
+    if not telegram_bot_api_key:
         sys.exit("Missing telegram api key")
     Bot(telegram_bot_api_key, cookies, F1_FANTASY_DRIVER_URL)
