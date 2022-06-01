@@ -1,5 +1,6 @@
-from undetected_chromedriver import Chrome as uc_chrome  # type: ignore
-from undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
+from urllib.request import Request
+from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
+from seleniumwire.undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from typing import List
@@ -42,3 +43,6 @@ class ChromeDriver:
             by_type=By.NAME, element_value="Password", value=credentials.password
         )
         self.send_key(key=Keys.RETURN)
+
+    def requests(self) -> List[Request]:
+        return self.driver.requests
