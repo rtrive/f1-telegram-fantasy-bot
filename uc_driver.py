@@ -1,6 +1,6 @@
 from urllib.request import Request
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
-from seleniumwire.undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
+from seleniumwire.undetected_chromedriver import ChromeOptions
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from typing import List
@@ -8,10 +8,8 @@ from credentials import Credentials
 
 
 class ChromeDriver:
-    def __init__(self):
-        self.options = uc_chrome_options()
-        self.options.add_argument("--headless")
-        self.driver = uc_chrome(options=self.options)
+    def __init__(self, options: ChromeOptions):
+        self.driver = uc_chrome(options=options)
 
     def go_to_page(self, url: str) -> None:
         self.driver.get(url=url)
