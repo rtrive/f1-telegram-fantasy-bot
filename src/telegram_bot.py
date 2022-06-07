@@ -1,6 +1,6 @@
 import requests  # type: ignore
+import logging
 from typing import Optional, Union
-
 from requests import Response
 from telegram import Update
 from telegram.constants import ParseMode
@@ -10,6 +10,8 @@ from telegram.ext import (
 )
 from telegram.helpers import escape_markdown
 import prettytable as pt
+
+logger = logging.getLogger(__name__)
 
 
 class Bot:

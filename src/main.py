@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from seleniumwire.undetected_chromedriver import (
     ChromeOptions as uc_chrome_options,
@@ -15,10 +16,16 @@ from uc_driver import ChromeDriver
 F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
 
+LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(format=LOG_FORMAT, level=LOG_LEVEL)
+logger = logging.getLogger()
+
+
 def get_player_cookie(driver: uc_chrome) -> str:
     player_cookie = ""
     try:
-        request = driver.wait_for_request('/f1/2022/sessions', 60)
+        request = driver.wait_for_request("/f1/2022/sessions", 60)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
     except TimeoutException as e:
         print(e)
