@@ -4,6 +4,7 @@ from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ig
 from seleniumwire.undetected_chromedriver import (
     ChromeOptions as uc_chrome_options,
 )
+from selenium.common.exceptions import TimeoutException
 from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters
 
@@ -15,8 +16,13 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
-    request = driver.wait_for_request('/f1/2022/sessions', 60)
-    player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
+    player_cookie = ""
+    try:
+        request = driver.wait_for_request('/f1/2022/sessions', 60)
+        player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
+    except TimeoutException as e:
+        print(e)
+        print("Session timeout")
     return player_cookie
 
 
