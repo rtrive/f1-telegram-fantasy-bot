@@ -15,7 +15,6 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
-    player_cookie = ""
     request = driver.wait_for_request('/f1/2022/sessions', 60)
     player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
     return player_cookie
