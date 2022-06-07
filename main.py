@@ -17,8 +17,8 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 def get_player_cookie(driver: uc_chrome) -> str:
     sleep_count = 0
+    player_cookie = ""
     while sleep_count <= 7:
-        player_cookie = ""
         for resp in driver.requests():
             if resp.url == "https://fantasy-api.formula1.com/f1/2022/sessions?v=1":
                 player_cookie = resp.response.headers.get("Set-Cookie").split(";")[0]
@@ -27,7 +27,7 @@ def get_player_cookie(driver: uc_chrome) -> str:
         sleep(5)
         sleep_count += 1
     print("Error session")
-    return ""
+    return player_cookie
 
 
 if __name__ == "__main__":
