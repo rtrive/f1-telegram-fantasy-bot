@@ -1,6 +1,5 @@
 import os
 import sys
-from time import sleep
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from seleniumwire.undetected_chromedriver import (
     ChromeOptions as uc_chrome_options,
@@ -16,17 +15,9 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
-    sleep_count = 0
     player_cookie = ""
-    while sleep_count <= 7:
-        for resp in driver.requests():
-            if resp.url == "https://fantasy-api.formula1.com/f1/2022/sessions?v=1":
-                player_cookie = resp.response.headers.get("Set-Cookie").split(";")[0]
-                print(player_cookie)
-                return player_cookie
-        sleep(5)
-        sleep_count += 1
-    print("Error session")
+    request = driver.wait_for_request('/f1/2022/sessions', 60)
+    player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
     return player_cookie
 
 

@@ -46,3 +46,7 @@ class ChromeDriver:
 
     def requests(self) -> List[Request]:
         return self.driver.requests
+
+    def wait_for_request(self, path: str, timeout: int):
+        print("wait for request")
+        return self.driver.wait_for_request(pat=path, timeout=timeout)
