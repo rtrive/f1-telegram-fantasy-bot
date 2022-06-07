@@ -1,5 +1,7 @@
 import os
 import sys
+from psutil import Process
+from apscheduler.schedulers.background import BackgroundScheduler
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from seleniumwire.undetected_chromedriver import (
     ChromeOptions as uc_chrome_options,
@@ -15,10 +17,15 @@ from uc_driver import ChromeDriver
 F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
 
+def reboot():
+    print("Shutdown for login session")
+    Process().terminate()
+
+
 def get_player_cookie(driver: uc_chrome) -> str:
     player_cookie = ""
     try:
-        request = driver.wait_for_request('/f1/2022/sessions', 60)
+        request = driver.wait_for_request("/f1/2022/sessions", 60)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
     except TimeoutException as e:
         print(e)
@@ -27,6 +34,11 @@ def get_player_cookie(driver: uc_chrome) -> str:
 
 
 if __name__ == "__main__":
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=reboot, trigger="interval", hours=24)
+    scheduler.start()
+
+    print("Start app")
     load_dotenv()
 
     chrome_options = uc_chrome_options()
@@ -42,7 +54,6 @@ if __name__ == "__main__":
         url=F1_FANTASY_LOGIN_URL,
         credentials=credentials,
     )
-
     cookies = get_player_cookie(driver)
     driver.close()
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
