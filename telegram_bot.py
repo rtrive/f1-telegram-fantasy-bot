@@ -1,5 +1,7 @@
 import requests  # type: ignore
-from typing import Optional
+from typing import Optional, Union
+
+from requests import Response
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import (
@@ -43,21 +45,33 @@ class Bot:
 
     @staticmethod
     def get_standings(cookies: str, league_id: str):
-        async def standings(update: Update, context: CallbackContext.DEFAULT_TYPE):
+        async def get_f1_fantasy_standings(
+            update: Update, context: CallbackContext.DEFAULT_TYPE
+        ):
             req = requests.get(
-                url=f'https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}',
+                url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",
                 headers={"Cookie": cookies},
             )
-            if req.status_code == 200:
-                leaderboard = req.json()['leaderboard']['leaderboard_entrants']
+            standing_message = get_standings_as_string(req)
+            # FIXME: At the moment the parse_mode has been set to MARKDOWN. We have to decide how to show the standings
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"```{standing_message}```",
+                parse_mode=ParseMode.MARKDOWN_V2,
+            )
 
-                table = pt.PrettyTable(['Team', 'Points'])
-                for entry in leaderboard:
-                    table.add_row([entry['team_name'], entry['score']])
-                await context.bot.send_message(chat_id=update.effective_chat.id, text=f'```{table}```', parse_mode=ParseMode.MARKDOWN_V2)
-            else:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id, text=f"Ko with status {req.status_code}"
-                )
+        return get_f1_fantasy_standings
 
-        return standings
+
+# TODO Define the format of the output message
+def get_standings_as_string(req: Union[Response, Response]) -> str:
+    status_code = req.status_code
+    if status_code == 200:
+        leaderboard = req.json()["leaderboard"]["leaderboard_entrants"]
+
+        table = pt.PrettyTable(["Username", "Points"])
+        for entry in leaderboard:
+            table.add_row([entry["username"], entry["score"]])
+        return f"```{table}```"
+    else:
+        return f"Ko with status code {status_code}"

@@ -2,7 +2,9 @@ import os
 import sys
 from time import sleep
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
-from seleniumwire.undetected_chromedriver import ChromeOptions as uc_chrome_options  # type: ignore
+from seleniumwire.undetected_chromedriver import (
+    ChromeOptions as uc_chrome_options,
+)
 from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters
 
@@ -55,7 +57,9 @@ if __name__ == "__main__":
         MessageHandler(filters.TEXT & (~filters.COMMAND), Bot.echo_handler())
     )
     fantasy_bot.application.add_handler(
-        CommandHandler("standings", Bot.get_standings(cookies=cookies, league_id=league_id))
+        CommandHandler(
+            "standings", Bot.get_standings(cookies=cookies, league_id=league_id)
+        )
     )
 
     print("Starting bot")
