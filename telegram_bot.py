@@ -45,15 +45,18 @@ class Bot:
 
     @staticmethod
     def get_standings(cookies: str, league_id: str):
+        league_url = f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}"  # noqa: E501
+
         async def get_f1_fantasy_standings(
             update: Update, context: CallbackContext.DEFAULT_TYPE
         ):
             req = requests.get(
-                url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",
+                url=league_url,
                 headers={"Cookie": cookies},
             )
             standing_message = get_standings_as_string(req)
-            # FIXME: At the moment the parse_mode has been set to MARKDOWN. We have to decide how to show the standings
+            # FIXME: At the moment the parse_mode has been set to MARKDOWN.
+            # We have to decide how to show the standings
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=f"```{standing_message}```",
