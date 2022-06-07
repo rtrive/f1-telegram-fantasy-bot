@@ -8,8 +8,10 @@ from credentials import Credentials
 
 
 class ChromeDriver:
-    def __init__(self, options: ChromeOptions):
-        self.driver = uc_chrome(options=options)
+    def __init__(self, options: ChromeOptions, seleniumwire_options: dict):
+        self.driver = uc_chrome(
+            options=options, seleniumwire_options=seleniumwire_options
+        )
 
     def go_to_page(self, url: str) -> None:
         self.driver.get(url=url)
@@ -44,3 +46,6 @@ class ChromeDriver:
 
     def requests(self) -> List[Request]:
         return self.driver.requests
+
+    def wait_for_request(self, path: str, timeout: int):
+        return self.driver.wait_for_request(pat=path, timeout=timeout)

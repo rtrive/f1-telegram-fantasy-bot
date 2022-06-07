@@ -1,10 +1,10 @@
 import os
 import sys
-from time import sleep
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from seleniumwire.undetected_chromedriver import (
     ChromeOptions as uc_chrome_options,
 )
+from selenium.common.exceptions import TimeoutException
 from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters
 
@@ -16,17 +16,13 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
-    sleep_count = 0
     player_cookie = ""
-    while sleep_count <= 7:
-        for resp in driver.requests():
-            if resp.url == "https://fantasy-api.formula1.com/f1/2022/sessions?v=1":
-                player_cookie = resp.response.headers.get("Set-Cookie").split(";")[0]
-                print(player_cookie)
-                return player_cookie
-        sleep(5)
-        sleep_count += 1
-    print("Error session")
+    try:
+        request = driver.wait_for_request('/f1/2022/sessions', 60)
+        player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
+    except TimeoutException as e:
+        print(e)
+        print("Session timeout")
     return player_cookie
 
 
@@ -34,8 +30,11 @@ if __name__ == "__main__":
     load_dotenv()
 
     chrome_options = uc_chrome_options()
-    # chrome_options.add_argument("--headless")
-    driver = ChromeDriver(options=chrome_options)
+    chrome_options.add_argument("--headless")
+    seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
+    driver = ChromeDriver(
+        options=chrome_options, seleniumwire_options=seleniumwire_options
+    )
     credentials = Credentials(
         username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")
     )
