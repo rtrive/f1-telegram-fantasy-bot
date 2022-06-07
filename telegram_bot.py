@@ -8,6 +8,7 @@ from telegram.ext import (
     ApplicationBuilder,
     CallbackContext,
 )
+from telegram.helpers import escape_markdown
 import prettytable as pt
 
 
@@ -59,7 +60,7 @@ class Bot:
             # We have to decide how to show the standings
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=f"```{standing_message}```",
+                text=escape_markdown(f"```{standing_message}```", version=2),
                 parse_mode=ParseMode.MARKDOWN_V2,
             )
 
