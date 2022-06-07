@@ -35,7 +35,10 @@ if __name__ == "__main__":
 
     chrome_options = uc_chrome_options()
     # chrome_options.add_argument("--headless")
-    driver = ChromeDriver(options=chrome_options)
+    seleniumwire_options = {"connecton-keep-alive": True, "disable-encoding": True}
+    driver = ChromeDriver(
+        options=chrome_options, seleniumwire_options=seleniumwire_options
+    )
     credentials = Credentials(
         username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")
     )
