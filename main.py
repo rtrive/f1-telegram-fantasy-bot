@@ -16,12 +16,18 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
-    player_cookie = ""
-    for resp in driver.requests():
-        if resp.url == "https://fantasy-api.formula1.com/f1/2022/sessions?v=1":
-            player_cookie = resp.response.headers.get("Set-Cookie").split(";")[0]
-
-    return player_cookie
+    sleep_count = 0
+    while sleep_count <= 7:
+        player_cookie = ""
+        for resp in driver.requests():
+            if resp.url == "https://fantasy-api.formula1.com/f1/2022/sessions?v=1":
+                player_cookie = resp.response.headers.get("Set-Cookie").split(";")[0]
+                print(player_cookie)
+                return player_cookie
+        sleep(5)
+        sleep_count += 1
+    print("Error session")
+    return ""
 
 
 if __name__ == "__main__":
@@ -38,9 +44,8 @@ if __name__ == "__main__":
         credentials=credentials,
     )
 
-    sleep(30)
-    # driver.close()
     cookies = get_player_cookie(driver)
+    driver.close()
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
     if not telegram_bot_api_key:
         sys.exit("Missing telegram api key")
