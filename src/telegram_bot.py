@@ -12,8 +12,8 @@ from telegram.ext import (
 from telegram.helpers import escape_markdown
 
 from core.error import Error
-from src.adapters.leaderboard_adapters import to_league_standings
-from src.core.league_standing import LeagueStanding
+from adapters.leaderboard_adapters import to_league_standings
+from core.league_standing import LeagueStanding
 
 T = TypeVar("T")
 
@@ -70,7 +70,7 @@ class Bot:
                     table.add_row([entrant.user.username, entrant.score])
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text=escape_markdown(f"```{table}```", version=2),
+                    text=escape_markdown(f"{table}", version=2),
                     parse_mode=ParseMode.MARKDOWN_V2,
                 )
             else:
