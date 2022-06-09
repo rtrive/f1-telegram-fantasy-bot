@@ -13,6 +13,8 @@ selenium-wire = "^4.6.4"
 python-telegram-bot = {version = "^20.0a0", allow-prereleases = true}
 requests = "^2.27.1"
 prettytable = "^3.3.0"
+APScheduler = "^3.9.1"
+psutil = "^5.9.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
