@@ -1,6 +1,8 @@
 import os
 import sys
 import logging
+from psutil import Process
+from apscheduler.schedulers.background import BackgroundScheduler
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from seleniumwire.undetected_chromedriver import (
     ChromeOptions as uc_chrome_options,
@@ -15,12 +17,17 @@ from uc_driver import ChromeDriver
 
 F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
-
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+
 logging.basicConfig(format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 logger.setLevel(level=LOG_LEVEL)
+
+
+def reboot():
+    print("Shutdown for login session")
+    Process().terminate()
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
@@ -36,6 +43,11 @@ def get_player_cookie(driver: uc_chrome) -> str:
 
 if __name__ == "__main__":
     logger.info("Startup")
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=reboot, trigger="interval", hours=24)
+    scheduler.start()
+
     load_dotenv()
 
     chrome_options = uc_chrome_options()
@@ -51,7 +63,6 @@ if __name__ == "__main__":
         url=F1_FANTASY_LOGIN_URL,
         credentials=credentials,
     )
-
     cookies = get_player_cookie(driver)
     driver.close()
     telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
