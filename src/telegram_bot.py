@@ -19,13 +19,13 @@ class Bot:
         try:
             self.application = ApplicationBuilder().token(api_key).build()
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     def start_bot(self):
         try:
             self.application.run_polling()
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     @staticmethod
     def start_bot_handler():
