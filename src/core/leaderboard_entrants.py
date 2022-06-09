@@ -1,4 +1,4 @@
-from src.core.user import User
+from core.user import User
 
 
 class LeaderboardEntrant:

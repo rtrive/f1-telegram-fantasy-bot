@@ -1,6 +1,6 @@
 from typing import List
 
-from src.core.leaderboard_entrants import LeaderboardEntrant
+from core.leaderboard_entrants import LeaderboardEntrant
 
 
 class LeagueStanding:
