@@ -18,8 +18,9 @@ F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
-logging.basicConfig(format=LOG_FORMAT, level=LOG_LEVEL)
-logger = logging.getLogger()
+logging.basicConfig(format=LOG_FORMAT)
+logger = logging.getLogger(__name__)
+logger.setLevel(level=LOG_LEVEL)
 
 
 def get_player_cookie(driver: uc_chrome) -> str:
@@ -34,10 +35,11 @@ def get_player_cookie(driver: uc_chrome) -> str:
 
 
 if __name__ == "__main__":
+    logger.info("Startup")
     load_dotenv()
 
     chrome_options = uc_chrome_options()
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
@@ -60,7 +62,7 @@ if __name__ == "__main__":
     if not league_id:
         sys.exit("Missing league id")
 
-    print("Registering handlers")
+    logging.info("Telegram registering handlers")
     fantasy_bot.application.add_handler(
         CommandHandler("start", Bot.start_bot_handler())
     )
@@ -73,5 +75,5 @@ if __name__ == "__main__":
         )
     )
 
-    print("Starting bot")
+    logging.info("Starting bot")
     fantasy_bot.start_bot()
