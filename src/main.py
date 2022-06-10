@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 from psutil import Process
@@ -74,6 +75,15 @@ if __name__ == "__main__":
     fantasy_bot.application.add_handler(
         CommandHandler(
             "standings", Bot.get_standings(cookies=cookies, league_id=league_id)
+        )
+    )
+
+    fantasy_bot.application.add_handler(
+        CommandHandler(
+            "test",
+            fantasy_bot.get_last_race_standing(
+                cookies=cookies, league_id=league_id, now=datetime.datetime.now()
+            ),
         )
     )
 

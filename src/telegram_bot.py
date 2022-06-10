@@ -1,6 +1,6 @@
+import datetime
 from typing import Optional, Union, TypeVar, Callable
 
-import prettytable as pt
 import requests  # type: ignore
 from requests import Response
 from telegram import Update
@@ -11,9 +11,12 @@ from telegram.ext import (
 )
 from telegram.helpers import escape_markdown
 
+from adapters.leaderboard_adapters import (
+    to_league_standings,
+    league_standing_to_pretty_table,
+)
+from adapters.season_adapters import to_races
 from core.error import Error
-from adapters.leaderboard_adapters import to_league_standings
-from core.league_standing import LeagueStanding
 
 T = TypeVar("T")
 
@@ -57,29 +60,76 @@ class Bot:
         async def get_f1_fantasy_standings(
             update: Update, context: CallbackContext.DEFAULT_TYPE
         ):
-            req = requests.get(
+            f1_fantasy_standings_req = requests.get(
                 url=league_url,
                 headers={"Cookie": cookies},
             )
-            standings = decode_http_response(req, to_league_standings)
-
-            if isinstance(standings, LeagueStanding):
-                # TODO: We can improve this part as well
-                table = pt.PrettyTable(["Username", "Points"])
-                for entrant in standings.entrants:
-                    table.add_row([entrant.user.username, entrant.score])
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=escape_markdown(f"{table}", version=2),
-                    parse_mode=ParseMode.MARKDOWN_V2,
-                )
-            else:
+            standings = decode_http_response(
+                f1_fantasy_standings_req, to_league_standings
+            )
+            if isinstance(standings, Error):
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     text="Non è stato possibile recuperare la classifica",
                 )
+            else:
+                message = league_standing_to_pretty_table(standing=standings)
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=escape_markdown(f"{message}", version=2),
+                    parse_mode=ParseMode.MARKDOWN_V2,
+                )
 
         return get_f1_fantasy_standings
+
+    @staticmethod
+    def get_last_race_standing(cookies: str, league_id: str, now: datetime.datetime):
+        async def get_last_f1_fantasy_race_standing(
+            update: Update, context: CallbackContext.DEFAULT_TYPE
+        ):
+            default_error_message = "Non è stato possibile recuperare la classifica"
+            req = requests.get(
+                url="https://fantasy-api.formula1.com/f1/2022?v=1",
+                headers={"Cookie": cookies},
+            )
+
+            season_races = decode_http_response(req, to_races)
+
+            if isinstance(season_races, Error):
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id, text=default_error_message
+                )
+            else:
+                last_race = list(
+                    filter(
+                        lambda race: race.start_timestamp < now,
+                        season_races,
+                    )
+                ).pop()
+
+                last_race_standings_req = requests.get(
+                    url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&game_period_id={last_race.id}&league_id={league_id}",  # noqa: E501
+                    headers={"Cookie": cookies},
+                )
+
+                last_race_standings = decode_http_response(
+                    last_race_standings_req, to_league_standings
+                )
+                if isinstance(last_race_standings, Error):
+                    await context.bot.send_message(
+                        chat_id=update.effective_chat.id, text=default_error_message
+                    )
+                else:
+                    message = league_standing_to_pretty_table(
+                        standing=last_race_standings
+                    )
+                    await context.bot.send_message(
+                        chat_id=update.effective_chat.id,
+                        text=escape_markdown(f"{message}", version=2),
+                        parse_mode=ParseMode.MARKDOWN_V2,
+                    )
+
+        return get_last_f1_fantasy_race_standing
 
 
 # TODO Move to utility package/file

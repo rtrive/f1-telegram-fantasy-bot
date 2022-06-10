@@ -3,6 +3,7 @@ from typing import List
 from src.core.leaderboard_entrants import LeaderboardEntrant
 from src.core.league_standing import LeagueStanding
 from src.adapters.user_adapters import to_user
+import prettytable as pt
 
 
 def to_leaderboard_entrant(leaderboard_entrant: dict) -> LeaderboardEntrant:
@@ -14,7 +15,7 @@ def to_leaderboard_entrant(leaderboard_entrant: dict) -> LeaderboardEntrant:
 
 
 def to_leaderboard_entrants(
-        leaderboard_entrants: List[dict],
+    leaderboard_entrants: List[dict],
 ) -> List[LeaderboardEntrant]:
     entrants = []
     for e in leaderboard_entrants:
@@ -24,7 +25,12 @@ def to_leaderboard_entrants(
 
 def to_league_standings(json: dict) -> LeagueStanding:
     return LeagueStanding(
-        entrants=to_leaderboard_entrants(
-            json["leaderboard"]["leaderboard_entrants"]
-        )
+        entrants=to_leaderboard_entrants(json["leaderboard"]["leaderboard_entrants"])
     )
+
+
+def league_standing_to_pretty_table(standing: LeagueStanding) -> pt.PrettyTable:
+    table = pt.PrettyTable(["Username", "Points"])
+    for e in standing.entrants:
+        table.add_row([e.user.username, e.score])
+    return table
