@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     fantasy_bot.application.add_handler(
         CommandHandler(
-            "last-gp-standings",
+            "last_gp_standings",
             fantasy_bot.get_last_race_standing(
                 cookies=cookies, league_id=league_id, now=datetime.datetime.now()
             ),
