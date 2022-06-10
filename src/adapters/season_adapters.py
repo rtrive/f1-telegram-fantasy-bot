@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from src.core.race import Race
+from core.race import Race
 
 
 def to_race(game_period: dict) -> Race:
