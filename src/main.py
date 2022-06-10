@@ -74,13 +74,13 @@ if __name__ == "__main__":
     )
     fantasy_bot.application.add_handler(
         CommandHandler(
-            "standings", Bot.get_standings(cookies=cookies, league_id=league_id)
+            "standings", fantasy_bot.get_standings(cookies=cookies, league_id=league_id)
         )
     )
 
     fantasy_bot.application.add_handler(
         CommandHandler(
-            "test",
+            "last-gp-standings",
             fantasy_bot.get_last_race_standing(
                 cookies=cookies, league_id=league_id, now=datetime.datetime.now()
             ),
