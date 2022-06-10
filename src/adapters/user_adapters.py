@@ -1,4 +1,4 @@
-from src.core.user import User
+from core.user import User
 
 
 def to_user(leaderboard_entrant: dict) -> User:

@@ -1,8 +1,8 @@
 from typing import List
 
-from src.core.leaderboard_entrants import LeaderboardEntrant
-from src.core.league_standing import LeagueStanding
-from src.adapters.user_adapters import to_user
+from core.leaderboard_entrants import LeaderboardEntrant
+from core.league_standing import LeagueStanding
+from adapters.user_adapters import to_user
 import prettytable as pt
 
 
