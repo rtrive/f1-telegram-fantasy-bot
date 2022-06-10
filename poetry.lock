@@ -461,7 +461,7 @@ cli = ["click (>=5.0)"]
 
 [[package]]
 name = "python-telegram-bot"
-version = "20.0a1"
+version = "20.0a0"
 description = "We have made you a wrapper you can't refuse"
 category = "main"
 optional = false
@@ -1153,9 +1153,9 @@ python-dotenv = [
     {file = "python_dotenv-0.20.0-py3-none-any.whl", hash = "sha256:d92a187be61fe482e4fd675b6d52200e7be63a12b724abbf931a40ce4fa92938"},
 ]
 python-telegram-bot = [
-    {file = "python-telegram-bot-20.0a1.tar.gz", hash = "sha256:8c801728b145e8e3894e2d9a42b54410bd2f532b4a97cb35a80286e4170ca1a2"},
-    {file = "python_telegram_bot-20.0a1-py3-none-any.whl", hash = "sha256:71a166664e77ddcc9a140f68cdbb0ed78203fb2f9f542107734a0c5ee967309b"},
-]
+    {file = "python-telegram-bot-20.0a0.tar.gz", hash = "sha256:a182a3d081071f1ea34833bc68ed7d0843c1fe0d6dca1d260a0e2d253b150f71"},
+    {file = "python_telegram_bot-20.0a0-py3-none-any.whl", hash = "sha256:483b2b7d39508cb673b07814284d6c25706890c519d9aa8177becbadd969b4e2"},
+ ]
 pytz = [
     {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
     {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
