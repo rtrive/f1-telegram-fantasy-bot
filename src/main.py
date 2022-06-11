@@ -18,6 +18,7 @@ from uc_driver import ChromeDriver
 F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
+# Fix: doesn't work since it outside loadenv() scope
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 
 logging.basicConfig(format=LOG_FORMAT)
@@ -36,7 +37,7 @@ def get_player_cookie(driver: uc_chrome) -> str:
     try:
         request = driver.wait_for_request("/f1/2022/sessions", 60)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
-        logger.debug(player_cookie)
+        logger.info(player_cookie)
     except TimeoutException as e:
         logger.error(e)
         logger.error("Session timeout")
