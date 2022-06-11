@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 import logging
@@ -82,7 +83,16 @@ if __name__ == "__main__":
     )
     fantasy_bot.application.add_handler(
         CommandHandler(
-            "standings", Bot.get_standings(cookies=cookies, league_id=league_id)
+            "standings", fantasy_bot.get_standings(cookies=cookies, league_id=league_id)
+        )
+    )
+
+    fantasy_bot.application.add_handler(
+        CommandHandler(
+            "last_gp_standings",
+            fantasy_bot.get_last_race_standing(
+                cookies=cookies, league_id=league_id, now=datetime.datetime.now()
+            ),
         )
     )
 
