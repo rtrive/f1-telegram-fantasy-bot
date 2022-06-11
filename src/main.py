@@ -24,6 +24,7 @@ def reboot():
 
 def get_player_cookie(driver: uc_chrome) -> str:
     player_cookie = ""
+    print("get cookie")
     try:
         request = driver.wait_for_request("/f1/2022/sessions", 60)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
@@ -43,6 +44,8 @@ if __name__ == "__main__":
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-setuid-sandbox") 
     seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
