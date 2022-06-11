@@ -1,6 +1,7 @@
 import datetime
 import os
 import sys
+import logging
 from psutil import Process
 from apscheduler.schedulers.background import BackgroundScheduler
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
@@ -16,6 +17,13 @@ from core.credentials import Credentials
 from uc_driver import ChromeDriver
 
 F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
+
+LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+
+logging.basicConfig(format=LOG_FORMAT)
+logger = logging.getLogger(__name__)
+logger.setLevel(level=LOG_LEVEL)
 
 
 def reboot():
@@ -35,15 +43,16 @@ def get_player_cookie(driver: uc_chrome) -> str:
 
 
 if __name__ == "__main__":
+    logger.info("Startup")
+
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=reboot, trigger="interval", hours=24)
     scheduler.start()
 
-    print("Start app")
     load_dotenv()
 
     chrome_options = uc_chrome_options()
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
@@ -65,7 +74,7 @@ if __name__ == "__main__":
     if not league_id:
         sys.exit("Missing league id")
 
-    print("Registering handlers")
+    logging.info("Telegram registering handlers")
     fantasy_bot.application.add_handler(
         CommandHandler("start", Bot.start_bot_handler())
     )
@@ -87,5 +96,5 @@ if __name__ == "__main__":
         )
     )
 
-    print("Starting bot")
+    logging.info("Starting bot")
     fantasy_bot.start_bot()
