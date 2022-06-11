@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters
 
 from telegram_bot import Bot
-from credentials import Credentials
+from core.credentials import Credentials
 from uc_driver import ChromeDriver
 
 F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501

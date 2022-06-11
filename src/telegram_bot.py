@@ -1,6 +1,7 @@
-import requests  # type: ignore
 import logging
-from typing import Optional, Union
+import prettytable as pt
+import requests
+from typing import Optional, Union, TypeVar, Callable
 from requests import Response
 from telegram import Update
 from telegram.constants import ParseMode
@@ -9,7 +10,12 @@ from telegram.ext import (
     CallbackContext,
 )
 from telegram.helpers import escape_markdown
-import prettytable as pt
+
+from core.error import Error
+from adapters.leaderboard_adapters import to_league_standings
+from core.league_standing import LeagueStanding
+
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -57,27 +63,33 @@ class Bot:
                 url=league_url,
                 headers={"Cookie": cookies},
             )
-            standing_message = get_standings_as_string(req)
-            # FIXME: At the moment the parse_mode has been set to MARKDOWN.
-            # We have to decide how to show the standings
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=escape_markdown(f"```{standing_message}```", version=2),
-                parse_mode=ParseMode.MARKDOWN_V2,
-            )
+            standings = decode_http_response(req, to_league_standings)
+
+            if isinstance(standings, LeagueStanding):
+                # TODO: We can improve this part as well
+                table = pt.PrettyTable(["Username", "Points"])
+                for entrant in standings.entrants:
+                    table.add_row([entrant.user.username, entrant.score])
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=escape_markdown(f"{table}", version=2),
+                    parse_mode=ParseMode.MARKDOWN_V2,
+                )
+            else:
+                await context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text="Non è stato possibile recuperare la classifica",
+                )
 
         return get_f1_fantasy_standings
 
 
-# TODO Define the format of the output message
-def get_standings_as_string(req: Union[Response, Response]) -> str:
+# TODO Move to utility package/file
+def decode_http_response(
+    req: Union[Response, Response], decode_fn: Callable[[dict], T]
+) -> Union[Error, T]:
     status_code = req.status_code
     if status_code == 200:
-        leaderboard = req.json()["leaderboard"]["leaderboard_entrants"]
-
-        table = pt.PrettyTable(["Username", "Points"])
-        for entry in leaderboard:
-            table.add_row([entry["username"], entry["score"]])
-        return f"```{table}```"
+        return decode_fn(req.json())
     else:
-        return f"Ko with status code {status_code}"
+        return Error(req.json())
