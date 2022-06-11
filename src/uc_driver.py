@@ -1,3 +1,4 @@
+import logging
 from urllib.request import Request
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
 from seleniumwire.undetected_chromedriver import ChromeOptions
@@ -5,6 +6,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from typing import List
 from core.credentials import Credentials
+
+logger = logging.getLogger(__name__)
 
 
 class ChromeDriver:
