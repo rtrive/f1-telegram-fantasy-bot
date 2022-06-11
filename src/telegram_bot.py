@@ -1,7 +1,7 @@
-from typing import Optional, Union, TypeVar, Callable
-
+import logging
 import prettytable as pt
-import requests  # type: ignore
+import requests
+from typing import Optional, Union, TypeVar, Callable
 from requests import Response
 from telegram import Update
 from telegram.constants import ParseMode
@@ -17,19 +17,21 @@ from core.league_standing import LeagueStanding
 
 T = TypeVar("T")
 
+logger = logging.getLogger(__name__)
+
 
 class Bot:
     def __init__(self, api_key: Optional[str]):
         try:
             self.application = ApplicationBuilder().token(api_key).build()
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     def start_bot(self):
         try:
             self.application.run_polling()
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     @staticmethod
     def start_bot_handler():
