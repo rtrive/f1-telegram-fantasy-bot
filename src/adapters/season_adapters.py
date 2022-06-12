@@ -9,6 +9,7 @@ def to_race(game_period: dict) -> Race:
         race_id=game_period["id"],
         name=game_period["name"],
         starts_at=datetime.strptime(game_period["starts_at"], "%Y-%m-%dT%H:%M:%S.%fZ"),
+        status=game_period["state"],
     )
 
 
