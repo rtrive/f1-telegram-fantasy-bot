@@ -56,7 +56,6 @@ if __name__ == "__main__":
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
     seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
