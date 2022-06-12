@@ -102,34 +102,42 @@ class Bot:
                     chat_id=update.effective_chat.id, text=default_error_message
                 )
             else:
-                last_race = list(
+                last_race_list = list(
                     filter(
-                        lambda race: race.start_timestamp < now,
+                        lambda race: race.start_timestamp < now
+                        and race.status == "results",
                         season_races,
                     )
-                ).pop()
-
-                last_race_standings_req = requests.get(
-                    url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&game_period_id={last_race.id}&league_id={league_id}",  # noqa: E501
-                    headers={"Cookie": cookies},
                 )
 
-                last_race_standings = decode_http_response(
-                    last_race_standings_req, to_league_standings
-                )
-                if isinstance(last_race_standings, Error):
+                if not last_race_list:
                     await context.bot.send_message(
                         chat_id=update.effective_chat.id, text=default_error_message
                     )
                 else:
-                    message = league_standing_to_pretty_table(
-                        standing=last_race_standings
+                    last_race = last_race_list.pop()
+
+                    last_race_standings_req = requests.get(
+                        url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&game_period_id={last_race.id}&league_id={league_id}",  # noqa: E501
+                        headers={"Cookie": cookies},
                     )
-                    await context.bot.send_message(
-                        chat_id=update.effective_chat.id,
-                        text=escape_markdown(f"{message}", version=2),
-                        parse_mode=ParseMode.MARKDOWN_V2,
+
+                    last_race_standings = decode_http_response(
+                        last_race_standings_req, to_league_standings
                     )
+                    if isinstance(last_race_standings, Error):
+                        await context.bot.send_message(
+                            chat_id=update.effective_chat.id, text=default_error_message
+                        )
+                    else:
+                        message = league_standing_to_pretty_table(
+                            standing=last_race_standings
+                        )
+                        await context.bot.send_message(
+                            chat_id=update.effective_chat.id,
+                            text=escape_markdown(f"{message}", version=2),
+                            parse_mode=ParseMode.MARKDOWN_V2,
+                        )
 
         return get_last_f1_fantasy_race_standing
 
