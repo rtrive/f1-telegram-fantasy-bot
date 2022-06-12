@@ -13,10 +13,8 @@ from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters
 
 from telegram_bot import Bot
-from core.credentials import Credentials
+from core.configuration import Configuration, validate_configuration
 from uc_driver import ChromeDriver
-
-F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
 # Fix: doesn't work since it outside loadenv() scope
@@ -53,6 +51,11 @@ if __name__ == "__main__":
     scheduler.start()
 
     load_dotenv()
+    configuration = Configuration(env_variables=os.environ)
+    errors = validate_configuration(configuration)
+    if errors:
+        logger.error(errors.message)
+        sys.exit()
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--headless")
@@ -60,22 +63,14 @@ if __name__ == "__main__":
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
-    credentials = Credentials(
-        username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")
-    )
     driver.login(
-        url=F1_FANTASY_LOGIN_URL,
-        credentials=credentials,
+        url=configuration.f1_fantasy.login_url,
+        credentials=configuration.f1_fantasy.credentials,
     )
     cookies = get_player_cookie(driver)
     driver.close()
-    telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
-    if not telegram_bot_api_key:
-        sys.exit("Missing telegram api key")
-    fantasy_bot = Bot(api_key=telegram_bot_api_key)
-    league_id = os.getenv("F1_FANTASY_LEAGUE_ID")
-    if not league_id:
-        sys.exit("Missing league id")
+    fantasy_bot = Bot(api_key=configuration.bot.api_key)
+    league_id = configuration.f1_fantasy.league_id
 
     logging.info("Telegram registering handlers")
     fantasy_bot.application.add_handler(
