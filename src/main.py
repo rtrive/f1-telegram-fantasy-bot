@@ -1,7 +1,8 @@
 import datetime
 import os
 import sys
-import logging
+from logging import Logger
+
 from psutil import Process
 from apscheduler.schedulers.background import BackgroundScheduler
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
@@ -20,12 +21,12 @@ from uc_driver import ChromeDriver
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
 
 
-def reboot(log: logging.Logger):
+def reboot(log: Logger):
     log.info("Shutdown for login session")
     Process().terminate()
 
 
-def get_player_cookie(log: logging.Logger, driver: uc_chrome) -> str:
+def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     player_cookie = ""
     log.debug("get cookie")
     try:
@@ -47,9 +48,7 @@ if __name__ == "__main__":
     log.info("Startup")
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        func=reboot, trigger="interval", hours=24, kwargs={"log": logging}
-    )
+    scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
     scheduler.start()
 
     errors = validate_configuration(configuration)
