@@ -1,7 +1,8 @@
 import datetime
 import os
 import sys
-import logging
+from logging import Logger
+
 from psutil import Process
 from apscheduler.schedulers.background import BackgroundScheduler
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
@@ -13,45 +14,47 @@ from dotenv import load_dotenv
 from telegram.ext import CommandHandler, MessageHandler, filters
 
 from telegram_bot import Bot
-from core.credentials import Credentials
+from core.configuration import Configuration, validate_configuration
+from logger import create_logger
 from uc_driver import ChromeDriver
 
-F1_FANTASY_LOGIN_URL = "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
-
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
-# Fix: doesn't work since it outside loadenv() scope
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
-
-logging.basicConfig(format=LOG_FORMAT, level="INFO")
-logger = logging.getLogger(__name__)
 
 
-def reboot():
-    print("Shutdown for login session")
+def reboot(log: Logger):
+    log.info("Shutdown for login session")
     Process().terminate()
 
 
-def get_player_cookie(driver: uc_chrome) -> str:
+def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     player_cookie = ""
-    logger.info("get cookie")
+    log.debug("get cookie")
     try:
         request = driver.wait_for_request("/f1/2022/sessions", 120)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
-        logger.info(player_cookie)
+        log.debug(player_cookie)
     except TimeoutException as e:
-        logger.error(e)
-        logger.error("Session timeout")
+        log.error(e)
+        log.error("Session timeout")
     return player_cookie
 
 
 if __name__ == "__main__":
-    logger.info("Startup")
+    load_dotenv()
+    configuration = Configuration(env_variables=os.environ)
+    log = create_logger(
+        name=__name__, level=configuration.log.log_level, format=LOG_FORMAT
+    )
+    log.info("Startup")
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=reboot, trigger="interval", hours=24)
+    scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
     scheduler.start()
 
-    load_dotenv()
+    errors = validate_configuration(configuration)
+    if errors:
+        log.error(errors.message)
+        sys.exit()
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--headless")
@@ -62,29 +65,21 @@ if __name__ == "__main__":
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
-    credentials = Credentials(
-        username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")
-    )
     driver.login(
-        url=F1_FANTASY_LOGIN_URL,
-        credentials=credentials,
+        url=configuration.f1_fantasy.login_url,
+        credentials=configuration.f1_fantasy.credentials,
     )
-    cookies = get_player_cookie(driver)
+    cookies = get_player_cookie(log=log, driver=driver)
     driver.close()
-    telegram_bot_api_key = os.getenv("TELEGRAM_BOT_API_KEY")
-    if not telegram_bot_api_key:
-        sys.exit("Missing telegram api key")
-    fantasy_bot = Bot(api_key=telegram_bot_api_key)
-    league_id = os.getenv("F1_FANTASY_LEAGUE_ID")
-    if not league_id:
-        sys.exit("Missing league id")
+    fantasy_bot = Bot(api_key=configuration.bot.api_key)
+    league_id = configuration.f1_fantasy.league_id
 
-    logging.info("Telegram registering handlers")
+    log.info("Telegram registering handlers")
     fantasy_bot.application.add_handler(
-        CommandHandler("start", Bot.start_bot_handler())
+        CommandHandler("start", fantasy_bot.start_bot_handler())
     )
     fantasy_bot.application.add_handler(
-        MessageHandler(filters.TEXT & (~filters.COMMAND), Bot.echo_handler())
+        MessageHandler(filters.TEXT & (~filters.COMMAND), fantasy_bot.echo_handler())
     )
     fantasy_bot.application.add_handler(
         CommandHandler(
@@ -101,5 +96,5 @@ if __name__ == "__main__":
         )
     )
 
-    logging.info("Starting bot")
+    log.info("Starting bot")
     fantasy_bot.start_bot()
