@@ -133,6 +133,7 @@ class Bot:
                         message = league_standing_to_pretty_table(
                             standing=last_race_standings
                         )
+                        message.title = last_race.name
                         await context.bot.send_message(
                             chat_id=update.effective_chat.id,
                             text=escape_markdown(f"{message}", version=2),
