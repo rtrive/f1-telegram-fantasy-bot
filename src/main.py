@@ -30,7 +30,7 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     player_cookie = ""
     log.debug("get cookie")
     try:
-        request = driver.wait_for_request("/f1/2022/sessions", 60)
+        request = driver.wait_for_request("/f1/2022/sessions", 120)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
         log.debug(player_cookie)
     except TimeoutException as e:
@@ -58,6 +58,9 @@ if __name__ == "__main__":
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
     seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
