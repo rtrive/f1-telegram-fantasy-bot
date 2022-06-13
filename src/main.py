@@ -22,9 +22,8 @@ LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(messa
 # Fix: doesn't work since it outside loadenv() scope
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 
-logging.basicConfig(format=LOG_FORMAT)
+logging.basicConfig(format=LOG_FORMAT, level="INFO")
 logger = logging.getLogger(__name__)
-logger.setLevel(level=LOG_LEVEL)
 
 
 def reboot():
@@ -36,7 +35,7 @@ def get_player_cookie(driver: uc_chrome) -> str:
     player_cookie = ""
     logger.info("get cookie")
     try:
-        request = driver.wait_for_request("/f1/2022/sessions", 60)
+        request = driver.wait_for_request("/f1/2022/sessions", 120)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
         logger.info(player_cookie)
     except TimeoutException as e:
