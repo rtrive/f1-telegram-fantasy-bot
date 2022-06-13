@@ -14,47 +14,45 @@ from telegram.ext import CommandHandler, MessageHandler, filters
 
 from telegram_bot import Bot
 from core.configuration import Configuration, validate_configuration
+from logger import create_logger
 from uc_driver import ChromeDriver
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
-# Fix: doesn't work since it outside loadenv() scope
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
-
-logging.basicConfig(format=LOG_FORMAT)
-logger = logging.getLogger(__name__)
-logger.setLevel(level=LOG_LEVEL)
 
 
-def reboot():
-    print("Shutdown for login session")
+def reboot(log: logging.Logger):
+    log.info("Shutdown for login session")
     Process().terminate()
 
 
-def get_player_cookie(driver: uc_chrome) -> str:
+def get_player_cookie(log: logging.Logger, driver: uc_chrome) -> str:
     player_cookie = ""
-    logger.info("get cookie")
+    log.debug("get cookie")
     try:
         request = driver.wait_for_request("/f1/2022/sessions", 60)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
-        logger.info(player_cookie)
+        log.debug(player_cookie)
     except TimeoutException as e:
-        logger.error(e)
-        logger.error("Session timeout")
+        log.error(e)
+        log.error("Session timeout")
     return player_cookie
 
 
 if __name__ == "__main__":
-    logger.info("Startup")
-
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=reboot, trigger="interval", hours=24)
-    scheduler.start()
-
     load_dotenv()
     configuration = Configuration(env_variables=os.environ)
+    log = create_logger(
+        name=__name__, level=configuration.log.log_level, format=LOG_FORMAT
+    )
+    log.info("Startup")
+
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={'log': logging})
+    scheduler.start()
+
     errors = validate_configuration(configuration)
     if errors:
-        logger.error(errors.message)
+        log.error(errors.message)
         sys.exit()
 
     chrome_options = uc_chrome_options()
@@ -67,17 +65,17 @@ if __name__ == "__main__":
         url=configuration.f1_fantasy.login_url,
         credentials=configuration.f1_fantasy.credentials,
     )
-    cookies = get_player_cookie(driver)
+    cookies = get_player_cookie(log=log, driver=driver)
     driver.close()
     fantasy_bot = Bot(api_key=configuration.bot.api_key)
     league_id = configuration.f1_fantasy.league_id
 
-    logging.info("Telegram registering handlers")
+    log.info("Telegram registering handlers")
     fantasy_bot.application.add_handler(
-        CommandHandler("start", Bot.start_bot_handler())
+        CommandHandler("start", fantasy_bot.start_bot_handler())
     )
     fantasy_bot.application.add_handler(
-        MessageHandler(filters.TEXT & (~filters.COMMAND), Bot.echo_handler())
+        MessageHandler(filters.TEXT & (~filters.COMMAND), fantasy_bot.echo_handler())
     )
     fantasy_bot.application.add_handler(
         CommandHandler(
@@ -94,5 +92,5 @@ if __name__ == "__main__":
         )
     )
 
-    logging.info("Starting bot")
+    log.info("Starting bot")
     fantasy_bot.start_bot()
