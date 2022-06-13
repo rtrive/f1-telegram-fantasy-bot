@@ -1,8 +1,13 @@
-from collections import UserDict
+from collections.abc import MutableMapping
 from typing import List, Optional
 
 from core.credentials import Credentials
 from core.error import Error
+
+
+class LogConfig:
+    def __init__(self, log_level):
+        self.log_level = log_level
 
 
 class BotConfig:
@@ -27,7 +32,7 @@ class F1FantasyConfig:
 
 
 class Configuration:
-    def __init__(self, env_variables: UserDict):
+    def __init__(self, env_variables: MutableMapping):
         self.f1_fantasy = F1FantasyConfig(
             credentials=Credentials(
                 username=env_variables.get("USERNAME"),
@@ -37,6 +42,7 @@ class Configuration:
             league_id=env_variables.get("F1_FANTASY_LEAGUE_ID"),
         )
         self.bot = BotConfig(api_key=env_variables.get("TELEGRAM_BOT_API_KEY"))
+        self.log = LogConfig(log_level=env_variables.get("LOG_LEVEL", "DEBUG"))
 
 
 def validate_bot_config(errors: List[str], bot_config: BotConfig) -> List[str]:
