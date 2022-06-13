@@ -24,7 +24,7 @@ class F1FantasyConfig:
     ):
         self.credentials = credentials
         self.login_url = (
-            "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"
+            "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
             if not login_url
             else login_url
         )

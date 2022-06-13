@@ -47,7 +47,9 @@ if __name__ == "__main__":
     log.info("Startup")
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={'log': logging})
+    scheduler.add_job(
+        func=reboot, trigger="interval", hours=24, kwargs={"log": logging}
+    )
     scheduler.start()
 
     errors = validate_configuration(configuration)
