@@ -54,7 +54,9 @@ if __name__ == "__main__":
     http_server_start(
         log=create_logger(
             name="http-server", level=configuration.log.log_level, format=LOG_FORMAT
-        )
+        ),
+        hostname=configuration.http_server.hostname,
+        port=configuration.http_server.port,
     )
 
     errors = validate_configuration(configuration)
