@@ -51,7 +51,11 @@ if __name__ == "__main__":
     scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
     scheduler.start()
 
-    http_server_start()
+    http_server_start(
+        log=create_logger(
+            name="http-server", level=configuration.log.log_level, format=LOG_FORMAT
+        )
+    )
 
     errors = validate_configuration(configuration)
     if errors:
