@@ -2,7 +2,6 @@ import datetime
 import os
 import sys
 from logging import Logger
-
 from psutil import Process
 from apscheduler.schedulers.background import BackgroundScheduler
 from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
@@ -17,6 +16,7 @@ from telegram_bot import Bot
 from core.configuration import Configuration, validate_configuration
 from logger import create_logger
 from uc_driver import ChromeDriver
+from http_server import start as http_server_start
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
 
@@ -50,6 +50,8 @@ if __name__ == "__main__":
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
     scheduler.start()
+
+    http_server_start()
 
     errors = validate_configuration(configuration)
     if errors:
