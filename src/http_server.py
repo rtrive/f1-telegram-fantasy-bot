@@ -3,7 +3,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from threading import Thread
 
 PORT = 8080
-HOSTNAME = "localhost"
+HOSTNAME = "0.0.0.0"
 
 
 class PythonServer(SimpleHTTPRequestHandler):
