@@ -36,6 +36,7 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     except TimeoutException as e:
         log.error(e)
         log.error("Session timeout")
+        reboot()
     return player_cookie
 
 
