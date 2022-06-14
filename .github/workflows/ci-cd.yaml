@@ -45,8 +45,8 @@ jobs:
           region: ${{ env.REGION }}
           env_vars: |
             BUCKET=${{ env.BUCKET }}
-            F1_USERNAME=${{ secrets.F1_USERNAME }}
-            F1_PASSWORD=${{ secrets.F1_PASSWORD }}
+            USERNAME=${{ secrets.F1_USERNAME }}
+            PASSWORD=${{ secrets.F1_PASSWORD }}
             F1_FANTASY_LEAGUE_ID=${{ secrets.F1_FANTASY_LEAGUE_ID }}
             TELEGRAM_BOT_API_KEY=${{ secrets.TELEGRAM_BOT_API_KEY }}
           flags: --execution-environment gen2
