@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class Bot:
-    def __init__(self, api_key: Optional[str], logger: logging.Logger):
+    def __init__(self, api_key: Optional[str]):
         try:
             self.application = ApplicationBuilder().token(api_key).build()
         except Exception as e:
@@ -89,13 +89,11 @@ class Bot:
 
     @staticmethod
     def get_standings_handler(cookies: str, league_id: str):
-        league_url = f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}"  # noqa: E501
-
         async def get_f1_fantasy_standings(
             update: Update, context: CallbackContext.DEFAULT_TYPE
         ):
             f1_fantasy_standings_req = requests.get(
-                url=league_url,
+                url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",  # noqa: E501,
                 headers={"Cookie": cookies},
             )
             standings = decode_http_response(

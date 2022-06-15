@@ -71,15 +71,13 @@ if __name__ == "__main__":
     driver.close()
     fantasy_bot = Bot(
         api_key=configuration.bot.api_key,
-        logger=create_logger(
-            name="Telegram_BOT", level=configuration.log.log_level, format=LOG_FORMAT
-        ),
     )
-    league_id = configuration.f1_fantasy.league_id
 
     log.info("Telegram registering handlers")
     fantasy_bot.application.add_handlers(
-        fantasy_bot.get_handlers(cookies=cookies, league_id=league_id)
+        fantasy_bot.get_handlers(
+            cookies=cookies, league_id=configuration.f1_fantasy.league_id
+        )
     )
     log.info("Starting bot")
     fantasy_bot.start_bot()
