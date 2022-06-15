@@ -2,18 +2,19 @@ import os
 import sys
 from logging import Logger
 
-from psutil import Process
 from apscheduler.schedulers.background import BackgroundScheduler
-from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
-from seleniumwire.undetected_chromedriver import (
+from core.configuration import Configuration, validate_configuration
+from dotenv import load_dotenv
+from logger import create_logger
+
+from psutil import Process
+from selenium.common.exceptions import TimeoutException
+from seleniumwire.undetected_chromedriver import (  # type: ignore
+    Chrome as uc_chrome,
     ChromeOptions as uc_chrome_options,
 )
-from selenium.common.exceptions import TimeoutException
-from dotenv import load_dotenv
 
 from telegram_bot import Bot
-from core.configuration import Configuration, validate_configuration
-from logger import create_logger
 from uc_driver import ChromeDriver
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"

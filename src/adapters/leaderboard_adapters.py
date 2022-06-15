@@ -1,9 +1,10 @@
 from typing import List
 
+import prettytable as pt
+from adapters.user_adapters import to_user
+
 from core.leaderboard_entrants import LeaderboardEntrant
 from core.league_standing import LeagueStanding
-from adapters.user_adapters import to_user
-import prettytable as pt
 
 
 def to_leaderboard_entrant(leaderboard_entrant: dict) -> LeaderboardEntrant:

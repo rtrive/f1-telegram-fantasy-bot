@@ -1,27 +1,28 @@
 import datetime
-import requests  # type: ignore
 import logging
-from typing import Optional, Union, TypeVar, Callable, List
+from typing import Callable, List, Optional, TypeVar, Union
+
+import constants
+import requests  # type: ignore
+
+from adapters.leaderboard_adapters import (
+    league_standing_to_pretty_table,
+    to_league_standings,
+)
+from adapters.season_adapters import to_races
+from core.error import Error
 from requests import Response
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import (
     ApplicationBuilder,
     CallbackContext,
-    Handler,
     CommandHandler,
-    MessageHandler,
     filters,
+    Handler,
+    MessageHandler,
 )
 from telegram.helpers import escape_markdown
-
-from adapters.leaderboard_adapters import (
-    to_league_standings,
-    league_standing_to_pretty_table,
-)
-from adapters.season_adapters import to_races
-from core.error import Error
-import constants
 
 T = TypeVar("T")
 
