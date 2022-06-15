@@ -12,3 +12,7 @@ repos:
       hooks:
         - id: black
           language_version: python3
+    - repo: https://github.com/omnilib/ufmt
+      rev: 'v1.3.2'
+      hooks:
+        - id: ufmt
