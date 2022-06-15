@@ -41,7 +41,10 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    if os.environ.get("RUNNING_IN_DOCKER"):
+        print("load from .env file")
+        load_dotenv()
+
     configuration = Configuration(env_variables=os.environ)
     log = create_logger(
         name=__name__, level=configuration.log.log_level, format=LOG_FORMAT
