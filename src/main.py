@@ -74,7 +74,7 @@ if __name__ == "__main__":
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
+    seleniumwire_options = {"connection_keep_alive": True, "disable_encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
