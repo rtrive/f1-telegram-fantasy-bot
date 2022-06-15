@@ -1,22 +1,28 @@
 import datetime
-import requests  # type: ignore
 import logging
-from typing import Optional, Union, TypeVar, Callable
+from typing import Callable, List, Optional, TypeVar, Union
+
+import constants
+import requests  # type: ignore
+
+from adapters.leaderboard_adapters import (
+    league_standing_to_pretty_table,
+    to_league_standings,
+)
+from adapters.season_adapters import to_races
+from core.error import Error
 from requests import Response
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import (
     ApplicationBuilder,
     CallbackContext,
+    CommandHandler,
+    filters,
+    Handler,
+    MessageHandler,
 )
 from telegram.helpers import escape_markdown
-
-from adapters.leaderboard_adapters import (
-    to_league_standings,
-    league_standing_to_pretty_table,
-)
-from adapters.season_adapters import to_races
-from core.error import Error
 
 T = TypeVar("T")
 
@@ -36,15 +42,41 @@ class Bot:
         except Exception as e:
             logger.error(e)
 
+    def get_handlers(self, cookies: str, league_id: str) -> List[Handler]:
+        return [
+            CommandHandler(constants.TELEGRAM_START_COMMAND, self.help_bot_handler()),
+            CommandHandler(constants.TELEGRAM_HELP_COMMAND, self.help_bot_handler()),
+            MessageHandler(filters.TEXT & (~filters.COMMAND), self.echo_handler()),
+            CommandHandler(
+                constants.TELEGRAM_FANTASY_STANDING_COMMAND,
+                self.get_standings_handler(cookies=cookies, league_id=league_id),
+            ),
+            CommandHandler(
+                constants.TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
+                self.get_last_race_standing_handler(
+                    cookies=cookies, league_id=league_id, now=datetime.datetime.now()
+                ),
+            ),
+        ]
+
     @staticmethod
     def start_bot_handler():
-        async def start(update: Update, context: CallbackContext.DEFAULT_TYPE):
+        return Bot.help_bot_handler()
+
+    @staticmethod
+    def help_bot_handler():
+        async def help_message(update: Update, context: CallbackContext.DEFAULT_TYPE):
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text="I'm a F1 Fantasy bot, please talk to me!",
+                text=f"I can help you with F1 Fantasy information. My commands are:\n\n"
+                f"/{constants.TELEGRAM_FANTASY_STANDING_COMMAND} - Get the F1 Fantasy "
+                f"standing\n"
+                f"/{constants.TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND} - Get the F1 "
+                f"Fantasy standing related to"
+                f" the last completed GP",
             )
 
-        return start
+        return help_message
 
     @staticmethod
     def echo_handler():
@@ -56,14 +88,12 @@ class Bot:
         return echo
 
     @staticmethod
-    def get_standings(cookies: str, league_id: str):
-        league_url = f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}"  # noqa: E501
-
+    def get_standings_handler(cookies: str, league_id: str):
         async def get_f1_fantasy_standings(
             update: Update, context: CallbackContext.DEFAULT_TYPE
         ):
             f1_fantasy_standings_req = requests.get(
-                url=league_url,
+                url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",  # noqa: E501,
                 headers={"Cookie": cookies},
             )
             standings = decode_http_response(
@@ -72,7 +102,7 @@ class Bot:
             if isinstance(standings, Error):
                 await context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text="Non è stato possibile recuperare la classifica",
+                    text="It wasn't possible to retrieve the standing",
                 )
             else:
                 message = league_standing_to_pretty_table(standing=standings)
@@ -85,11 +115,13 @@ class Bot:
         return get_f1_fantasy_standings
 
     @staticmethod
-    def get_last_race_standing(cookies: str, league_id: str, now: datetime.datetime):
+    def get_last_race_standing_handler(
+        cookies: str, league_id: str, now: datetime.datetime
+    ):
         async def get_last_f1_fantasy_race_standing(
             update: Update, context: CallbackContext.DEFAULT_TYPE
         ):
-            default_error_message = "Non è stato possibile recuperare la classifica"
+            default_error_message = "It wasn't possible to retrieve the standing"
             req = requests.get(
                 url="https://fantasy-api.formula1.com/f1/2022?v=1",
                 headers={"Cookie": cookies},

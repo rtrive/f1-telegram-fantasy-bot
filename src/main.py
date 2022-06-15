@@ -1,21 +1,20 @@
-import datetime
 import os
 import sys
 from logging import Logger
 
-from psutil import Process
 from apscheduler.schedulers.background import BackgroundScheduler
-from seleniumwire.undetected_chromedriver import Chrome as uc_chrome  # type: ignore
-from seleniumwire.undetected_chromedriver import (
+from core.configuration import Configuration, validate_configuration
+from dotenv import load_dotenv
+from logger import create_logger
+
+from psutil import Process
+from selenium.common.exceptions import TimeoutException
+from seleniumwire.undetected_chromedriver import (  # type: ignore
+    Chrome as uc_chrome,
     ChromeOptions as uc_chrome_options,
 )
-from selenium.common.exceptions import TimeoutException
-from dotenv import load_dotenv
-from telegram.ext import CommandHandler, MessageHandler, filters
 
 from telegram_bot import Bot
-from core.configuration import Configuration, validate_configuration
-from logger import create_logger
 from uc_driver import ChromeDriver
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
@@ -42,19 +41,18 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
 if __name__ == "__main__":
     load_dotenv()
     configuration = Configuration(env_variables=os.environ)
+    errors = validate_configuration(configuration)
     log = create_logger(
         name=__name__, level=configuration.log.log_level, format=LOG_FORMAT
     )
+    if errors:
+        log.error(errors.message)
+        sys.exit()
     log.info("Startup")
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
     scheduler.start()
-
-    errors = validate_configuration(configuration)
-    if errors:
-        log.error(errors.message)
-        sys.exit()
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--headless")
@@ -71,30 +69,15 @@ if __name__ == "__main__":
     )
     cookies = get_player_cookie(log=log, driver=driver)
     driver.close()
-    fantasy_bot = Bot(api_key=configuration.bot.api_key)
-    league_id = configuration.f1_fantasy.league_id
+    fantasy_bot = Bot(
+        api_key=configuration.bot.api_key,
+    )
 
     log.info("Telegram registering handlers")
-    fantasy_bot.application.add_handler(
-        CommandHandler("start", fantasy_bot.start_bot_handler())
-    )
-    fantasy_bot.application.add_handler(
-        MessageHandler(filters.TEXT & (~filters.COMMAND), fantasy_bot.echo_handler())
-    )
-    fantasy_bot.application.add_handler(
-        CommandHandler(
-            "standings", fantasy_bot.get_standings(cookies=cookies, league_id=league_id)
+    fantasy_bot.application.add_handlers(
+        fantasy_bot.get_handlers(
+            cookies=cookies, league_id=configuration.f1_fantasy.league_id
         )
     )
-
-    fantasy_bot.application.add_handler(
-        CommandHandler(
-            "last_gp_standings",
-            fantasy_bot.get_last_race_standing(
-                cookies=cookies, league_id=league_id, now=datetime.datetime.now()
-            ),
-        )
-    )
-
     log.info("Starting bot")
     fantasy_bot.start_bot()
