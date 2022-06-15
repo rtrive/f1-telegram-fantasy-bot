@@ -69,6 +69,7 @@ if __name__ == "__main__":
         sys.exit()
 
     chrome_options = uc_chrome_options()
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
