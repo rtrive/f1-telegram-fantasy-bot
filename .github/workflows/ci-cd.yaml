@@ -55,7 +55,7 @@ jobs:
             DB_USERNAME: ${{ secrets.DB_USERNAME }}
             DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
             DB_PORT: ${{ secrets.DB_PORT }}
-            DB_DATABASE_NAME: ${{ secrets.DB_DATABASE_NAME }}
+            DB_NAME: ${{ secrets.DB_NAME }}
           flags: --execution-environment gen2
 
       - name: Show Output
