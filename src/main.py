@@ -3,18 +3,17 @@ import sys
 from logging import Logger
 
 from apscheduler.schedulers.background import BackgroundScheduler
+
 from core.configuration import Configuration, validate_configuration
 from dotenv import load_dotenv
 from http_server import start as http_server_start
 from logger import create_logger
-
 from psutil import Process
 from selenium.common.exceptions import TimeoutException
 from seleniumwire.undetected_chromedriver import (  # type: ignore
     Chrome as uc_chrome,
     ChromeOptions as uc_chrome_options,
 )
-
 from telegram_bot import Bot
 from uc_driver import ChromeDriver
 
@@ -30,9 +29,7 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     player_cookie = ""
     log.debug("get cookie")
     try:
-        request = driver.wait_for_request(
-            "/v2/account/subscriber/authenticate/by-password", 120
-        )
+        driver.wait_for_request("/v2/account/subscriber/authenticate/by-password", 120)
         request = driver.wait_for_request("/f1/2022/sessions", 120)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
         log.debug(player_cookie)
@@ -94,10 +91,11 @@ if __name__ == "__main__":
     )
 
     log.info("Telegram registering handlers")
-    fantasy_bot.application.add_handlers(
-        fantasy_bot.get_handlers(
-            cookies=cookies, league_id=configuration.f1_fantasy.league_id
-        )
+    handlers = fantasy_bot.get_handlers(
+        cookies=cookies, league_id=configuration.f1_fantasy.league_id
     )
+    for handler in handlers:
+        fantasy_bot.dispatcher.add_handler(handler=handler)
+
     log.info("Starting bot")
     fantasy_bot.start_bot()
