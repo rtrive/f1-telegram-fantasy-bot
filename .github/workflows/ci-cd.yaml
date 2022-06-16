@@ -1,4 +1,4 @@
-on: 
+on:
   push:
     branches:
       - main
@@ -13,7 +13,6 @@ env:
   F1_PASSWORD: ${{ secrets.F1_PASSWORD }}
   F1_FANTASY_LEAGUE_ID: ${{ secrets.F1_FANTASY_LEAGUE_ID }}
   TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY }}
-  
 
 jobs:
   deploy:
