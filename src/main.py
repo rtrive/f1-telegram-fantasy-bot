@@ -30,6 +30,11 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     player_cookie = ""
     log.debug("get cookie")
     try:
+        request = driver.wait_for_request(
+            "/v2/account/subscriber/authenticate/by-password", 120
+        )
+        log.info(request.body)
+        log.info(request.response.body)
         request = driver.wait_for_request("/f1/2022/sessions", 120)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
         log.debug(player_cookie)
@@ -41,7 +46,7 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
 
 
 if __name__ == "__main__":
-    if os.environ.get("RUNNING_IN_DOCKER"):
+    if not os.environ.get("RUNNING_IN_DOCKER"):
         print("load from .env file")
         load_dotenv()
 
