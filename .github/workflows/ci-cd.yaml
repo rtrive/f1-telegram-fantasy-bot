@@ -1,4 +1,4 @@
-on: 
+on:
   push:
     branches:
       - main
@@ -13,7 +13,6 @@ env:
   F1_PASSWORD: ${{ secrets.F1_PASSWORD }}
   F1_FANTASY_LEAGUE_ID: ${{ secrets.F1_FANTASY_LEAGUE_ID }}
   TELEGRAM_BOT_API_KEY: ${{ secrets.TELEGRAM_BOT_API_KEY }}
-  
 
 jobs:
   deploy:
@@ -52,6 +51,11 @@ jobs:
             PASSWORD=${{ secrets.F1_PASSWORD }}
             F1_FANTASY_LEAGUE_ID=${{ secrets.F1_FANTASY_LEAGUE_ID }}
             TELEGRAM_BOT_API_KEY=${{ secrets.TELEGRAM_BOT_API_KEY }}
+            DB_HOST: ${{ secrets.DB_HOST }}
+            DB_USERNAME: ${{ secrets.DB_USERNAME }}
+            DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            DB_PORT: ${{ secrets.DB_PORT }}
+            DB_NAME: ${{ secrets.DB_NAME }}
           flags: --execution-environment gen2
 
       - name: Show Output
