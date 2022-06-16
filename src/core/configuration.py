@@ -31,6 +31,12 @@ class F1FantasyConfig:
         self.league_id = league_id
 
 
+class HttpServerConfig:
+    def __init__(self, hostname: str, port: int) -> None:
+        self.hostname = hostname
+        self.port = port
+
+
 class Configuration:
     def __init__(self, env_variables: MutableMapping):
         self.f1_fantasy = F1FantasyConfig(
@@ -43,6 +49,10 @@ class Configuration:
         )
         self.bot = BotConfig(api_key=env_variables.get("TELEGRAM_BOT_API_KEY"))
         self.log = LogConfig(log_level=env_variables.get("LOG_LEVEL", "DEBUG"))
+        self.http_server = HttpServerConfig(
+            hostname=env_variables.get("HTTP_SERVER_HOSTNAME", default="0.0.0.0"),
+            port=env_variables.get("HTTP_SERVER_PORT", default=8080),
+        )
 
 
 def validate_bot_config(errors: List[str], bot_config: BotConfig) -> List[str]:

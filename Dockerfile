@@ -11,3 +11,4 @@ RUN poetry install --no-ansi
 
 ADD . /app
 CMD /app/.venv/bin/python src/main.py
+

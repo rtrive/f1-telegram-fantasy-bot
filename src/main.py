@@ -5,6 +5,7 @@ from logging import Logger
 from apscheduler.schedulers.background import BackgroundScheduler
 from core.configuration import Configuration, validate_configuration
 from dotenv import load_dotenv
+from http_server import start as http_server_start
 from logger import create_logger
 
 from psutil import Process
@@ -29,17 +30,22 @@ def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
     player_cookie = ""
     log.debug("get cookie")
     try:
+        request = driver.wait_for_request(
+            "/v2/account/subscriber/authenticate/by-password", 120
+        )
         request = driver.wait_for_request("/f1/2022/sessions", 120)
         player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
         log.debug(player_cookie)
     except TimeoutException as e:
         log.error(e)
         log.error("Session timeout")
+        reboot(log)
     return player_cookie
 
 
 if __name__ == "__main__":
     load_dotenv()
+
     configuration = Configuration(env_variables=os.environ)
     errors = validate_configuration(configuration)
     log = create_logger(
@@ -54,12 +60,26 @@ if __name__ == "__main__":
     scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
     scheduler.start()
 
+    http_server_start(
+        log=create_logger(
+            name="http-server", level=configuration.log.log_level, format=LOG_FORMAT
+        ),
+        hostname=configuration.http_server.hostname,
+        port=configuration.http_server.port,
+    )
+
+    errors = validate_configuration(configuration)
+    if errors:
+        log.error(errors.message)
+        sys.exit()
+
     chrome_options = uc_chrome_options()
+    chrome_options.add_argument("--blink-settings=imagesEnabled=false")
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    seleniumwire_options = {"connection-keep-alive": True, "disable-encoding": True}
+    seleniumwire_options = {"connection_keep_alive": True, "disable_encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
