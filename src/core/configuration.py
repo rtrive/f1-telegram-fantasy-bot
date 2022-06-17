@@ -39,11 +39,7 @@ class F1FantasyConfig:
         league_id: Optional[str],
     ):
         self.credentials = credentials
-        self.login_url = (
-            "https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F"  # noqa: E501
-            if not login_url
-            else login_url
-        )
+        self.login_url = login_url
         self.league_id = league_id
 
 
@@ -60,7 +56,10 @@ class Configuration:
                 username=env_variables.get("USERNAME"),
                 password=env_variables.get("PASSWORD"),
             ),
-            login_url=env_variables.get("F1_FANTASY_LOGIN_URL"),
+            login_url=env_variables.get(
+                "F1_FANTASY_LOGIN_URL",
+                default="https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F",  # noqa: E501
+            ),
             league_id=env_variables.get("F1_FANTASY_LEAGUE_ID"),
         )
         self.bot = BotConfig(api_key=env_variables.get("TELEGRAM_BOT_API_KEY"))
