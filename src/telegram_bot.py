@@ -5,6 +5,7 @@ from typing import List
 import constants
 
 import requests  # type: ignore
+
 from adapters.leaderboard_adapters import (
     league_standing_to_pretty_table,
     to_league_standings,
@@ -14,9 +15,8 @@ from adapters.persistence.jobstore import PTBSQLAlchemyJobStore
 from adapters.season_adapters import to_races
 from core.configuration import DatabaseConfig
 from core.error import Error
-from telegram import Update
+from telegram import Update, ParseMode
 from telegram.ext import CallbackContext, CommandHandler, Handler, Updater
-from telegram.utils.helpers import escape_markdown
 from utils.http import decode_http_response
 
 logger = logging.getLogger(name=__name__)
@@ -100,8 +100,8 @@ class Bot:
                 message = league_standing_to_pretty_table(standing=standings)
                 context.bot.send_message(
                     chat_id=update.effective_chat.id,
-                    text=escape_markdown(f"{message}", version=2),
-                    parse_mode="MarkdownV2",
+                    text=f"<pre>{message}</pre>",
+                    parse_mode=ParseMode.HTML,
                 )
 
         return get_f1_fantasy_standings
@@ -159,8 +159,8 @@ class Bot:
                         message.title = last_race.name
                         context.bot.send_message(
                             chat_id=update.effective_chat.id,
-                            text=escape_markdown(f"{message}", version=2),
-                            parse_mode="MarkdownV2",
+                            text=f"<pre>{message}</pre>",
+                            parse_mode=ParseMode.HTML,
                         )
 
         return get_last_f1_fantasy_race_standing
