@@ -4,6 +4,7 @@ from logging import Logger
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from bot.handlers import get_handlers
 from bot.telegram_bot import Bot
 
 from core.configuration import Configuration, validate_configuration
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     )
 
     log.info("Telegram registering handlers")
-    handlers = fantasy_bot.get_handlers(
+    handlers = get_handlers(
         cookies=cookies, league_id=configuration.f1_fantasy.league_id
     )
     for handler in handlers:
