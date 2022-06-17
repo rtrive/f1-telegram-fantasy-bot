@@ -4,6 +4,8 @@ from logging import Logger
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from bot.telegram_bot import Bot
+
 from core.configuration import Configuration, validate_configuration
 from dotenv import load_dotenv
 from http_server import start as http_server_start
@@ -14,8 +16,6 @@ from seleniumwire.undetected_chromedriver import (  # type: ignore
     Chrome as uc_chrome,
     ChromeOptions as uc_chrome_options,
 )
-
-from telegram_bot import Bot
 from uc_driver import ChromeDriver
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"

@@ -2,20 +2,24 @@ import datetime
 import logging
 from typing import List
 
-import constants
-
-import requests  # type: ignore
+import requests
 
 from adapters.leaderboard_adapters import (
     league_standing_to_pretty_table,
     to_league_standings,
 )
-
 from adapters.persistence.jobstore import PTBSQLAlchemyJobStore
-from adapters.season_adapters import to_races
+from bot.telegram_command import (
+    COMMANDS,
+    TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
+    TELEGRAM_FANTASY_REMIND_BEFORE_GP,
+    TELEGRAM_FANTASY_STANDING_COMMAND,
+    TELEGRAM_HELP_COMMAND,
+    TELEGRAM_START_COMMAND,
+)
 from core.configuration import DatabaseConfig
 from core.error import Error
-from telegram import Update, ParseMode
+from telegram import ParseMode, Update
 from telegram.ext import CallbackContext, CommandHandler, Handler, Updater
 from utils.http import decode_http_response
 
@@ -47,35 +51,33 @@ class Bot:
     def get_handlers(self, cookies: str, league_id: str) -> List[Handler]:
         return [
             CommandHandler(
-                [constants.TELEGRAM_START_COMMAND, constants.TELEGRAM_HELP_COMMAND],
+                [TELEGRAM_START_COMMAND, TELEGRAM_HELP_COMMAND],
                 self.help_bot_handler(),
             ),
             CommandHandler(
-                constants.TELEGRAM_FANTASY_STANDING_COMMAND,
+                TELEGRAM_FANTASY_STANDING_COMMAND,
                 self.get_standings_handler(cookies=cookies, league_id=league_id),
             ),
             CommandHandler(
-                constants.TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
+                TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
                 self.get_last_race_standing_handler(
                     cookies=cookies, league_id=league_id, now=datetime.datetime.now()
                 ),
             ),
-            CommandHandler(
-                constants.TELEGRAM_FANTASY_REMIND_BEFORE_GP, self.set_timer_handler()
-            ),
+            CommandHandler(TELEGRAM_FANTASY_REMIND_BEFORE_GP, self.set_timer_handler()),
         ]
 
     @staticmethod
     def help_bot_handler():
         def help_message(update: Update, context: CallbackContext):
+            help_msg = (
+                "I can help you with F1 Fantasy information. My commands are:\n\n"
+            )
+            for command in filter(lambda c: c.active is True, COMMANDS):
+                help_msg += f"/{command.name} - {command.description}\n"
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=f"I can help you with F1 Fantasy information. My commands are:\n\n"
-                f"/{constants.TELEGRAM_FANTASY_STANDING_COMMAND} - Get the F1 Fantasy "
-                f"standing\n"
-                f"/{constants.TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND} - Get the F1 "
-                f"Fantasy standing related to"
-                f" the last completed GP",
+                text=help_msg,
             )
 
         return help_message
@@ -192,27 +194,3 @@ class Bot:
                 update.message.reply_text("Usage: /set <seconds>")
 
         return set_lineup_reminders
-
-
-# This means that the function you are attempting to schedule has one of the following
-# problems:
-#
-# - It is a lambda function (e.g. lambda x: x + 1)
-# - It is a bound method (function tied to a particular instance of some class)
-# - It is a nested function (function inside another function)
-# - You are trying to schedule a function that is not tied to any actual module
-#   (such as a function defined in the REPL, hence __main__ as the module name)
-def alarm(context: CallbackContext) -> None:
-    """Send the alarm message."""
-    job = context.job
-    context.bot.send_message(job.context, text="Beep!")
-
-
-def remove_job_if_exists(name: str, context: CallbackContext) -> bool:
-    """Remove job with given name. Returns whether job was removed."""
-    current_jobs = context.job_queue.get_jobs_by_name(name)
-    if not current_jobs:
-        return False
-    for job in current_jobs:
-        job.schedule_removal()
-    return True
