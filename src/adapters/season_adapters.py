@@ -7,7 +7,7 @@ from core.race import Race
 def to_race(game_period: dict) -> Race:
     return Race(
         race_id=game_period["id"],
-        name=game_period["name"],
+        name=game_period["short_name"],
         starts_at=datetime.strptime(game_period["starts_at"], "%Y-%m-%dT%H:%M:%S.%fZ"),
         status=game_period["state"],
     )
