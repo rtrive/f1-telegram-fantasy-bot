@@ -6,7 +6,7 @@ from core.error import Error
 
 
 class LogConfig:
-    def __init__(self, log_level):
+    def __init__(self, log_level: str):
         self.log_level = log_level
 
 
@@ -48,7 +48,7 @@ class Configuration:
             league_id=env_variables.get("F1_FANTASY_LEAGUE_ID"),
         )
         self.bot = BotConfig(api_key=env_variables.get("TELEGRAM_BOT_API_KEY"))
-        self.log = LogConfig(log_level=env_variables.get("LOG_LEVEL", "DEBUG"))
+        self.log = LogConfig(log_level=env_variables.get("LOG_LEVEL", default="DEBUG"))
         self.http_server = HttpServerConfig(
             hostname=env_variables.get("HTTP_SERVER_HOSTNAME", default="0.0.0.0"),
             port=int(env_variables.get("PORT", default=8080)),
