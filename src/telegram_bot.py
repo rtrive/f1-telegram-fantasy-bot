@@ -194,12 +194,14 @@ class Bot:
         return set_lineup_reminders
 
 
-# This means that the function you are attempting to schedule has one of the following problems:
+# This means that the function you are attempting to schedule has one of the following
+# problems:
 #
-# It is a lambda function (e.g. lambda x: x + 1)
-# It is a bound method (function tied to a particular instance of some class)
-# It is a nested function (function inside another function)
-# You are trying to schedule a function that is not tied to any actual module (such as a function defined in the REPL, hence __main__ as the module name)
+# - It is a lambda function (e.g. lambda x: x + 1)
+# - It is a bound method (function tied to a particular instance of some class)
+# - It is a nested function (function inside another function)
+# - You are trying to schedule a function that is not tied to any actual module
+#   (such as a function defined in the REPL, hence __main__ as the module name)
 def alarm(context: CallbackContext) -> None:
     """Send the alarm message."""
     job = context.job
