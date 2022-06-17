@@ -14,6 +14,7 @@ from seleniumwire.undetected_chromedriver import (  # type: ignore
     Chrome as uc_chrome,
     ChromeOptions as uc_chrome_options,
 )
+
 from telegram_bot import Bot
 from uc_driver import ChromeDriver
 
@@ -86,8 +87,9 @@ if __name__ == "__main__":
     )
     cookies = get_player_cookie(log=log, driver=driver)
     driver.close()
+
     fantasy_bot = Bot(
-        api_key=configuration.bot.api_key,
+        api_key=configuration.bot.api_key, db_config=configuration.db_config
     )
 
     log.info("Telegram registering handlers")
