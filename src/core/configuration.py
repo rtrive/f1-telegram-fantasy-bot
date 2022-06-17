@@ -51,7 +51,7 @@ class Configuration:
         self.log = LogConfig(log_level=env_variables.get("LOG_LEVEL", "DEBUG"))
         self.http_server = HttpServerConfig(
             hostname=env_variables.get("HTTP_SERVER_HOSTNAME", default="0.0.0.0"),
-            port=env_variables.get("HTTP_SERVER_PORT", default=8080),
+            port=int(env_variables.get("PORT", default=8080)),
         )
 
 
