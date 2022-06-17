@@ -9,6 +9,7 @@ from adapters.leaderboard_adapters import (
     to_league_standings,
 )
 from adapters.persistence.jobstore import PTBSQLAlchemyJobStore
+from adapters.season_adapters import to_races
 from bot.telegram_command import (
     COMMANDS,
     TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
@@ -194,3 +195,26 @@ class Bot:
                 update.message.reply_text("Usage: /set <seconds>")
 
         return set_lineup_reminders
+
+
+# This means that the function you are attempting to schedule has one of the following problems:
+#
+# It is a lambda function (e.g. lambda x: x + 1)
+# It is a bound method (function tied to a particular instance of some class)
+# It is a nested function (function inside another function)
+# You are trying to schedule a function that is not tied to any actual module
+# (such as a function defined in the REPL, hence __main__ as the module name)
+def alarm(context: CallbackContext) -> None:
+    """Send the alarm message."""
+    job = context.job
+    context.bot.send_message(job.context, text="Beep!")
+
+
+def remove_job_if_exists(name: str, context: CallbackContext) -> bool:
+    """Remove job with given name. Returns whether job was removed."""
+    current_jobs = context.job_queue.get_jobs_by_name(name)
+    if not current_jobs:
+        return False
+    for job in current_jobs:
+        job.schedule_removal()
+    return True
