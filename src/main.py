@@ -67,11 +67,6 @@ if __name__ == "__main__":
         port=configuration.http_server.port,
     )
 
-    errors = validate_configuration(configuration)
-    if errors:
-        log.error(errors.message)
-        sys.exit()
-
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
     chrome_options.add_argument("--headless")

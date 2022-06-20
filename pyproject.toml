@@ -2,7 +2,7 @@
 name = "telegram-f1-bot"
 version = "0.1.0"
 description = ""
-authors = ["Riccardo Trivellato <6997999+rtrive@users.noreply.github.com>"]
+authors = ["Riccardo Trivellato <6997999+rtrive@users.noreply.github.com>", "Marco Comi <marco.comi@aol.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
