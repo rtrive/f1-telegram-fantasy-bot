@@ -1,7 +1,7 @@
 import datetime
 from typing import List
 
-import requests
+import requests  # type: ignore
 
 from adapters.leaderboard_adapters import (
     league_standing_to_pretty_table,
@@ -37,8 +37,7 @@ def help_bot_handler():
 def get_standings_handler(cookies: str, league_id: str):
     def get_f1_fantasy_standings(update: Update, context: CallbackContext):
         f1_fantasy_standings_req = requests.get(
-            url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",
-            # noqa: E501,
+            url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",  # noqa: E501
             headers={"Cookie": cookies},
         )
         standings = decode_http_response(f1_fantasy_standings_req, to_league_standings)
@@ -91,8 +90,7 @@ def get_last_race_standing_handler(
                 last_race = last_race_list.pop()
 
                 last_race_standings_req = requests.get(
-                    url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&game_period_id={last_race.id}&league_id={league_id}",
-                    # noqa: E501
+                    url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&game_period_id={last_race.id}&league_id={league_id}",  # noqa: E501
                     headers={"Cookie": cookies},
                 )
 

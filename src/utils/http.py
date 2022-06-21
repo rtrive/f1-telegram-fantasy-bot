@@ -1,7 +1,7 @@
 from typing import Callable, TypeVar, Union
 
 from core.error import Error
-from requests import Response
+from requests import Response  # type: ignore
 
 T = TypeVar("T")
 

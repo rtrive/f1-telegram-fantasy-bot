@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
-# As described here (https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent),
-# Job's and the job_queue is not supported. However, the current JobQueue backend APScheduler has its own persistence
+# As described here
+# (https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent),
+# Job's and the job_queue is not supported. However, the current JobQueue
+# backend APScheduler has its own persistence
 # logic that you can leverage.
-# We have been redirected here (https://github.com/python-telegram-bot/ptbcontrib/tree/main/ptbcontrib/ptb_sqlalchemy_jobstore)
+# We have been redirected here
+# ß(https://github.com/python-telegram-bot/ptbcontrib/tree/main/ptbcontrib/ptb_sqlalchemy_jobstore)
 # and the next liens of code come from there.
 
 
