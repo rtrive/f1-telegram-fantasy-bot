@@ -17,7 +17,7 @@ from bot.telegram_command import (
     COMMANDS,
     TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
     TELEGRAM_FANTASY_STANDING_COMMAND,
-    TELEGRAM_FANTASY_STANDING_TEAM_COMMAND,
+    TELEGRAM_FANTASY_TEAM_COMMAND,
     TELEGRAM_HELP_COMMAND,
     TELEGRAM_START_COMMAND,
 )
@@ -199,7 +199,7 @@ def get_handlers(cookies: str, league_id: str) -> List[Handler]:
             ),
         ),
         CommandHandler(
-            TELEGRAM_FANTASY_STANDING_TEAM_COMMAND,
+            TELEGRAM_FANTASY_TEAM_COMMAND,
             get_last_race_team_standing_handler(cookies=cookies, league_id=league_id),
         ),
         CallbackQueryHandler(
