@@ -170,8 +170,9 @@ def get_last_race_team_standing_handler_button(cookies: str, now: datetime.datet
         picked_players = decode_http_response(
             f1_fantasy_standing_team_req, to_picked_players
         )
-        message = picker_players_to_pretty_table(picker_players=picked_players)
-        message.title = last_race.name
+        message = picker_players_to_pretty_table(
+            picked_players=picked_players, last_race=last_race
+        )
 
         query.edit_message_text(
             text=f"<pre>{message}</pre>",

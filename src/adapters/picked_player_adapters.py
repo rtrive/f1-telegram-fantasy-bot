@@ -3,6 +3,7 @@ from typing import List
 import prettytable as pt
 import requests  # type: ignore
 from core.picked_player import PickedPlayer
+from core.race import Race
 
 f1_all_players = {}
 
@@ -42,10 +43,12 @@ def to_picked_player(json: dict) -> PickedPlayer:
 
 
 def picker_players_to_pretty_table(
-    picker_players: List[PickedPlayer],
+    picked_players: List[PickedPlayer], last_race: Race
 ) -> pt.PrettyTable:
-    table = pt.PrettyTable(["Name", "Team", "Score"])
-    for e in picker_players:
+    table = pt.PrettyTable()
+    table.title = last_race.name
+    table.field_names = ["Name", "Team", "Score"]
+    for e in picked_players:
         table.add_row(
             [
                 f"{e.player_name}({e.position_abbreviation})",
