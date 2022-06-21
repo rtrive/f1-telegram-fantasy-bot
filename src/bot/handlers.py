@@ -19,7 +19,7 @@ from bot.telegram_command import (
 )
 from core.error import Error
 from telegram import InlineKeyboardMarkup, ParseMode, Update
-from telegram.ext import CallbackContext, CommandHandler, Handler
+from telegram.ext import CallbackContext, CommandHandler, Handler, CallbackQueryHandler
 from utils.http import decode_http_response
 
 
@@ -134,6 +134,17 @@ def get_last_race_team_standing_handler(cookies: str, league_id: str):
     return get_f1_last_race_team_standing_handler
 
 
+def get_f1_last_race_team_standing_handler_button(
+    update: Update, context: CallbackContext
+) -> None:
+
+    query = update.callback_query
+
+    query.answer()
+
+    query.edit_message_text(text=f"Selected option: {query.data}")
+
+
 # FIXME: find a way to use what is in telegram_command.py to avoid duplication
 def get_handlers(cookies: str, league_id: str) -> List[Handler]:
     return [
@@ -155,4 +166,5 @@ def get_handlers(cookies: str, league_id: str) -> List[Handler]:
             TELEGRAM_FANTASY_STANDING_TEAM_COMMAND,
             get_last_race_team_standing_handler(cookies=cookies, league_id=league_id),
         ),
+        CallbackQueryHandler(get_f1_last_race_team_standing_handler_button),
     ]
