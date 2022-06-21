@@ -138,7 +138,7 @@ def get_last_race_team_standing_handler(cookies: str, league_id: str):
     return get_f1_last_race_team_standing_handler
 
 
-def get_last_race_team_standing_handler_button(cookies: str):
+def get_last_race_team_standing_handler_button(cookies: str, now: datetime.datetime):
     def get_f1_last_race_team_standing_handler_button(
         update: Update, context: CallbackContext
     ) -> None:
@@ -148,15 +148,30 @@ def get_last_race_team_standing_handler_button(cookies: str):
         query.answer()
         user_global_id = query.data
 
-        # WIP: find a way to get last race dinamically
+        req = requests.get(
+            url="https://fantasy-api.formula1.com/f1/2022?v=1",
+            headers={"Cookie": cookies},
+        )
+
+        season_races = decode_http_response(req, to_races)
+
+        last_race_list = list(
+            filter(
+                lambda race: race.start_timestamp < now and race.status == "results",
+                season_races,
+            )
+        )
+        last_race = last_race_list.pop()
+
         f1_fantasy_standing_team_req = requests.get(
-            url=f"https://fantasy-api.formula1.com/f1/2022/picked_teams/for_slot?v=1&game_period_id=8&slot=1&user_global_id={user_global_id}",  # noqa: E501
+            url=f"https://fantasy-api.formula1.com/f1/2022/picked_teams/for_slot?v=1&game_period_id={last_race.id}&slot=1&user_global_id={user_global_id}",  # noqa: E501
             headers={"Cookie": cookies},
         )
         picked_players = decode_http_response(
             f1_fantasy_standing_team_req, to_picked_players
         )
         message = picker_players_to_pretty_table(picker_players=picked_players)
+        message.title = last_race.name
 
         query.edit_message_text(
             text=f"<pre>{message}</pre>",
@@ -188,6 +203,8 @@ def get_handlers(cookies: str, league_id: str) -> List[Handler]:
             get_last_race_team_standing_handler(cookies=cookies, league_id=league_id),
         ),
         CallbackQueryHandler(
-            get_last_race_team_standing_handler_button(cookies=cookies)
+            get_last_race_team_standing_handler_button(
+                cookies=cookies, now=datetime.datetime.now()
+            )
         ),
     ]
