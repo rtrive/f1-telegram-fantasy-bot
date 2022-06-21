@@ -4,6 +4,7 @@ from typing import List
 import requests  # type: ignore
 
 from adapters.leaderboard_adapters import (
+    entrant_to_pretty_input,
     league_standing_to_pretty_table,
     to_league_standings,
 )
@@ -12,11 +13,12 @@ from bot.telegram_command import (
     COMMANDS,
     TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
     TELEGRAM_FANTASY_STANDING_COMMAND,
+    TELEGRAM_FANTASY_STANDING_TEAM_COMMAND,
     TELEGRAM_HELP_COMMAND,
     TELEGRAM_START_COMMAND,
 )
 from core.error import Error
-from telegram import ParseMode, Update
+from telegram import InlineKeyboardMarkup, ParseMode, Update
 from telegram.ext import CallbackContext, CommandHandler, Handler
 from utils.http import decode_http_response
 
@@ -115,6 +117,23 @@ def get_last_race_standing_handler(
     return get_last_f1_fantasy_race_standing
 
 
+def get_last_race_team_standing_handler(cookies: str, league_id: str):
+    def get_f1_last_race_team_standing_handler(
+        update: Update, context: CallbackContext
+    ) -> None:
+        f1_fantasy_standings_req = requests.get(
+            url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",  # noqa: E501
+            headers={"Cookie": cookies},
+        )
+        standings = decode_http_response(f1_fantasy_standings_req, to_league_standings)
+        inputs = entrant_to_pretty_input(standings)
+        reply_markup = InlineKeyboardMarkup(inputs)
+
+        update.message.reply_text("Please choose:", reply_markup=reply_markup)
+
+    return get_f1_last_race_team_standing_handler
+
+
 # FIXME: find a way to use what is in telegram_command.py to avoid duplication
 def get_handlers(cookies: str, league_id: str) -> List[Handler]:
     return [
@@ -131,5 +150,9 @@ def get_handlers(cookies: str, league_id: str) -> List[Handler]:
             get_last_race_standing_handler(
                 cookies=cookies, league_id=league_id, now=datetime.datetime.now()
             ),
+        ),
+        CommandHandler(
+            TELEGRAM_FANTASY_STANDING_TEAM_COMMAND,
+            get_last_race_team_standing_handler(cookies=cookies, league_id=league_id),
         ),
     ]

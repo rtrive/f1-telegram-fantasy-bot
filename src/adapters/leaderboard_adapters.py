@@ -5,6 +5,7 @@ from adapters.user_adapters import to_user
 
 from core.leaderboard_entrants import LeaderboardEntrant
 from core.league_standing import LeagueStanding
+from telegram import InlineKeyboardButton
 
 
 def to_leaderboard_entrant(leaderboard_entrant: dict) -> LeaderboardEntrant:
@@ -35,3 +36,22 @@ def league_standing_to_pretty_table(standing: LeagueStanding) -> pt.PrettyTable:
     for e in standing.entrants:
         table.add_row([e.user.username, e.score])
     return table
+
+
+def entrant_to_pretty_input(standing: LeagueStanding) -> List[InlineKeyboardButton]:
+    keyboard = []
+    tmp = []
+    for i in range(len(standing.entrants)):
+        if i % 3 == 0:
+            keyboard.append(tmp)
+            tmp = []
+        # Skip fake user
+        if standing.entrants[i].user.username != "Asdfgh S.":
+            tmp.append(
+                InlineKeyboardButton(
+                    standing.entrants[i].user.username,
+                    callback_data=standing.entrants[i].user.global_id,
+                )
+            )
+    keyboard.append(tmp)
+    return keyboard

@@ -2,6 +2,7 @@ TELEGRAM_HELP_COMMAND = "help"
 TELEGRAM_START_COMMAND = "start"
 TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND = "last_gp_standing"
 TELEGRAM_FANTASY_STANDING_COMMAND = "standing"
+TELEGRAM_FANTASY_STANDING_TEAM_COMMAND = "standing_team"
 
 
 class TelegramCommand:
@@ -26,5 +27,9 @@ COMMANDS = [
     TelegramCommand(
         name=TELEGRAM_FANTASY_STANDING_COMMAND,
         description="Get F1 Fantasy league standing",
+    ),
+    TelegramCommand(
+        name=TELEGRAM_FANTASY_STANDING_TEAM_COMMAND,
+        description="Get F1 Fantasy league standing for single team",
     ),
 ]
