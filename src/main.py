@@ -3,7 +3,7 @@ import sys
 from asyncio.log import logger
 from logging import Logger
 
-import requests
+import requests  # type: ignore
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
