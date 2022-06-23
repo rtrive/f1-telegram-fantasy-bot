@@ -1,6 +1,5 @@
 import os
 import sys
-from asyncio.log import logger
 from logging import Logger
 
 import requests  # type: ignore
