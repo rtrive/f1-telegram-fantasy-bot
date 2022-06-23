@@ -38,13 +38,15 @@ def league_standing_to_pretty_table(standing: LeagueStanding) -> pt.PrettyTable:
     return table
 
 
-def entrant_to_pretty_input(standing: LeagueStanding) -> List[InlineKeyboardButton]:
+def entrant_to_pretty_input(
+    standing: LeagueStanding,
+) -> List[List[InlineKeyboardButton]]:
     keyboard = []
-    tmp = []
+    tmp: list[InlineKeyboardButton] = []
     for i in range(len(standing.entrants)):
         if i % 3 == 0:
             keyboard.append(tmp)
-            tmp = []
+            tmp.clear()
         tmp.append(
             InlineKeyboardButton(
                 standing.entrants[i].user.username,

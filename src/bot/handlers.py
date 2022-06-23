@@ -9,7 +9,7 @@ from adapters.leaderboard_adapters import (
     to_league_standings,
 )
 from adapters.picked_player_adapters import (
-    picker_players_to_pretty_table,
+    picked_players_to_pretty_table,
     to_picked_players,
 )
 from adapters.season_adapters import to_races
@@ -173,7 +173,7 @@ def get_last_race_team_standing_handler_button(
         picked_players = decode_http_response(
             f1_fantasy_standing_team_req, to_picked_players(f1_all_players)
         )
-        message = picker_players_to_pretty_table(
+        message = picked_players_to_pretty_table(
             picked_players=picked_players, last_race=last_race
         )
 

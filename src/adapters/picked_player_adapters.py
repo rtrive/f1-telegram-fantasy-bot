@@ -27,7 +27,7 @@ def to_picked_player(json: dict, players: dict) -> PickedPlayer:
     )
 
 
-def picker_players_to_pretty_table(
+def picked_players_to_pretty_table(
     picked_players: List[PickedPlayer], last_race: Race
 ) -> pt.PrettyTable:
     table = pt.PrettyTable()
