@@ -45,7 +45,6 @@ def entrant_to_pretty_input(standing: LeagueStanding) -> List[InlineKeyboardButt
         if i % 3 == 0:
             keyboard.append(tmp)
             tmp = []
-        # Skip fake user
         tmp.append(
             InlineKeyboardButton(
                 standing.entrants[i].user.username,
