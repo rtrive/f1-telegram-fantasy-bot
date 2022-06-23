@@ -15,9 +15,9 @@ def start(log: logging.Logger, hostname: str, port: int):
     server = ThreadingHTTPServer((hostname, port), PythonServer)
     log.info(f"Server started at {hostname}:{port}")
     try:
-        server = Thread(target=server.serve_forever)
-        server.daemon = True
-        server.start()
+        server = Thread(target=server.serve_forever)  # type: ignore
+        server.daemon = True  # type: ignore
+        server.start()  # type: ignore
 
     except KeyboardInterrupt:
         server.server_close()

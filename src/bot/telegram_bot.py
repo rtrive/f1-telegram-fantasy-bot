@@ -17,7 +17,7 @@ class Bot:
             self.dispatcher.job_queue.scheduler.add_jobstore(
                 PTBSQLAlchemyJobStore(
                     dispatcher=self.dispatcher,
-                    url=f"postgresql://{db_config.username}:{db_config.password}@{db_config.hostname}:{db_config.port}/{db_config.db_name}",
+                    url=f"postgresql://{db_config.username}:{db_config.password}@{db_config.hostname}:{db_config.port}/{db_config.db_name}",  # noqa: E501
                 )
             )
         except Exception as e:
