@@ -90,7 +90,7 @@ if __name__ == "__main__":
         api_key=configuration.bot.api_key, db_config=configuration.db_config
     )
 
-    logger.info("Loading drivers")
+    log.info("Loading drivers")
     f1_drivers_req = requests.get(
         url="https://fantasy-api.formula1.com/f1/2022/players"
     )
