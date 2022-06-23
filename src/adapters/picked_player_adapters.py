@@ -1,36 +1,21 @@
 from typing import List
 
 import prettytable as pt
-import requests  # type: ignore
 from core.picked_player import PickedPlayer
 from core.race import Race
 
-f1_all_players = {}
+
+def to_picked_players(players: dict):
+    def from_json_to_picked_players(json: dict) -> List[PickedPlayer]:
+        return [
+            to_picked_player(picked_player, players)
+            for picked_player in json["picked_team"]["picked_players"]
+        ]
+
+    return from_json_to_picked_players
 
 
-def player_id_to_name() -> dict:
-    global f1_all_players
-    if not f1_all_players:
-        f1_players_req = requests.get(
-            url="https://fantasy-api.formula1.com/f1/2022/players"
-        )
-        f1_players = (f1_players_req.json())["players"]
-        f1_all_players = {}
-        for f1_player in f1_players:
-            f1_all_players[f1_player["id"]] = f1_player["last_name"]
-        return f1_all_players
-    return f1_all_players
-
-
-def to_picked_players(json: dict) -> List[PickedPlayer]:
-    return [
-        to_picked_player(picked_player)
-        for picked_player in json["picked_team"]["picked_players"]
-    ]
-
-
-def to_picked_player(json: dict) -> PickedPlayer:
-    players = player_id_to_name()
+def to_picked_player(json: dict, players: dict) -> PickedPlayer:
     return PickedPlayer(
         player_id=json["player_id"],
         player_name=players[json["player_id"]],

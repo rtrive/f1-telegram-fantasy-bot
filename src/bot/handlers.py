@@ -138,7 +138,9 @@ def get_last_race_team_standing_handler(cookies: str, league_id: str):
     return get_f1_last_race_team_standing_handler
 
 
-def get_last_race_team_standing_handler_button(cookies: str, now: datetime.datetime):
+def get_last_race_team_standing_handler_button(
+    cookies: str, now: datetime.datetime, f1_all_players: dict
+):
     def get_f1_last_race_team_standing_handler_button(
         update: Update, context: CallbackContext
     ) -> None:
@@ -167,8 +169,9 @@ def get_last_race_team_standing_handler_button(cookies: str, now: datetime.datet
             url=f"https://fantasy-api.formula1.com/f1/2022/picked_teams/for_slot?v=1&game_period_id={last_race.id}&slot=1&user_global_id={user_global_id}",  # noqa: E501
             headers={"Cookie": cookies},
         )
+
         picked_players = decode_http_response(
-            f1_fantasy_standing_team_req, to_picked_players
+            f1_fantasy_standing_team_req, to_picked_players(f1_all_players)
         )
         message = picked_players_to_pretty_table(
             picked_players=picked_players, last_race=last_race
@@ -183,7 +186,7 @@ def get_last_race_team_standing_handler_button(cookies: str, now: datetime.datet
 
 
 # FIXME: find a way to use what is in telegram_command.py to avoid duplication
-def get_handlers(cookies: str, league_id: str) -> List[Handler]:
+def get_handlers(cookies: str, league_id: str, drivers: dict) -> List[Handler]:
     return [
         CommandHandler(
             [TELEGRAM_START_COMMAND, TELEGRAM_HELP_COMMAND],
@@ -205,7 +208,7 @@ def get_handlers(cookies: str, league_id: str) -> List[Handler]:
         ),
         CallbackQueryHandler(
             get_last_race_team_standing_handler_button(
-                cookies=cookies, now=datetime.datetime.now()
+                cookies=cookies, now=datetime.datetime.now(), f1_all_players=drivers
             )
         ),
     ]
