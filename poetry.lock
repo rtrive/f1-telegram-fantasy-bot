@@ -482,7 +482,7 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "selenium"
-version = "4.2.0"
+version = "4.3.0"
 description = ""
 category = "main"
 optional = false
@@ -1255,7 +1255,7 @@ requests = [
     {file = "requests-2.28.0.tar.gz", hash = "sha256:d568723a7ebd25875d8d1eaf5dfa068cd2fc8194b2e483d7b1f7c81918dbec6b"},
 ]
 selenium = [
-    {file = "selenium-4.2.0-py3-none-any.whl", hash = "sha256:ba5b2633f43cf6fe9d308fa4a6996e00a101ab9cb1aad6fd91ae1f3dbe57f56f"},
+    {file = "selenium-4.3.0-py3-none-any.whl", hash = "sha256:f67402b8f973aaa98d9c55b8f9aa63532009cd1859b2222a8b9800354942d8bc"},
 ]
 selenium-wire = [
     {file = "selenium-wire-4.6.4.tar.gz", hash = "sha256:d6e2e0947040b42a314f1d85ed88a4b34b0e8844d97da2c04b2017e6be60d60b"},
