@@ -4,6 +4,7 @@ from typing import List
 from core.race import Race, RaceStatus
 
 
+# TODO: Refactor using match case (it looks like ufmt doesn't work with that)
 def to_race_status(race_state: str) -> RaceStatus:
     if race_state == "results":
         return RaceStatus.COMPLETED

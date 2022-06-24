@@ -1,6 +1,6 @@
 import datetime
 from logging import Logger
-from typing import Union, List
+from typing import List, Union
 
 from adapters.leaderboard_adapters import to_league_standings
 from adapters.picked_player_adapters import to_picked_players
@@ -9,33 +9,40 @@ from core.error import Error
 from core.league_standing import LeagueStanding
 from core.picked_player import PickedPlayer
 from core.race import Race, RaceStatus
-from http_client import HTTPMethod, HTTPClient
+from http_client import HTTPClient, HTTPMethod
 
 
 class F1FantasyService:
-    def __init__(self, http_client: HTTPClient, logger: Logger, cookies: str, league_id: str):
+    def __init__(
+        self, http_client: HTTPClient, logger: Logger, cookies: str, league_id: str
+    ):
         self.http_client = http_client
         self.logger = logger
         self.cookies = cookies
         self.league_id = league_id
 
     """Get the races for the season."""
+
     def get_season_races(self, season: int) -> Union[Error, List[Race]]:
         self.logger.debug("Getting all season")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
             path=f"/f1/{season}?v=1",
             headers={"Cookie": self.cookies},
-            decoder=to_races
+            decoder=to_races,
         )
 
     """Get the last completed race"""
-    def get_last_completed_race(self, season: int, now: datetime.datetime) -> Union[Error, Race]:
+
+    def get_last_completed_race(
+        self, season: int, now: datetime.datetime
+    ) -> Union[Error, Race]:
         races = self.get_season_races(season=season)
         if not isinstance(races, Error):
             last_race = list(
                 filter(
-                    lambda race: race.start_timestamp < now and race.status is RaceStatus.COMPLETED,
+                    lambda race: race.start_timestamp < now
+                    and race.status is RaceStatus.COMPLETED,
                     races,
                 )
             )
@@ -46,31 +53,36 @@ class F1FantasyService:
         return races
 
     """Get the league standing"""
+
     def get_league_standing(self) -> Union[Error, LeagueStanding]:
         self.logger.debug("Get league standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
             path=f"/f1/2022/leaderboards/leagues?v=1&league_id={self.league_id}",
             headers={"Cookie": self.cookies},
-            decoder=to_league_standings
+            decoder=to_league_standings,
         )
 
     """Get the last race standing"""
-    def get_last_race_standing(self,  race_id: int) -> Union[Error, LeagueStanding]:
+
+    def get_last_race_standing(self, race_id: int) -> Union[Error, LeagueStanding]:
         self.logger.debug("Getting last race standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
-            path=f"/f1/2022/leaderboards/leagues?v=1&game_period_id={race_id}&league_id={self.league_id}",
+            path=f"/f1/2022/leaderboards/leagues?v=1&game_period_id={race_id}&league_id={self.league_id}",  # noqa: E501
             headers={"Cookie": self.cookies},
-            decoder=to_league_standings
+            decoder=to_league_standings,
         )
 
     """Get the last race standing "of a single team"""
-    def get_last_race_team_standing(self, race_id: int, user_id: str, f1_drivers: dict) -> Union[Error, List[PickedPlayer]]:
+
+    def get_last_race_team_standing(
+        self, race_id: int, user_id: str, f1_drivers: dict
+    ) -> Union[Error, List[PickedPlayer]]:
         self.logger.debug("Getting last race team standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
-            path=f"/f1/2022/picked_teams/for_slot?v=1&game_period_id={race_id}&slot=1&user_global_id={user_id}",
+            path=f"/f1/2022/picked_teams/for_slot?v=1&game_period_id={race_id}&slot=1&user_global_id={user_id}",  # noqa: E501
             headers={"Cookie": self.cookies},
-            decoder=to_picked_players(f1_drivers)
+            decoder=to_picked_players(f1_drivers),
         )
