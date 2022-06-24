@@ -3,6 +3,8 @@ from typing import List
 from urllib.request import Request
 
 from core.credentials import Credentials
+from psutil import Process
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from seleniumwire.undetected_chromedriver import (  # type: ignore
@@ -55,3 +57,22 @@ class ChromeDriver:
 
     def wait_for_request(self, path: str, timeout: int):
         return self.driver.wait_for_request(pat=path, timeout=timeout)
+
+    def get_player_cookie(self) -> str:
+        player_cookie = ""
+        logger.debug("Get session cookie")
+        try:
+            self.driver.wait_for_request(
+                "/v2/account/subscriber/authenticate/by-password", 120
+            )
+            request = self.driver.wait_for_request("/f1/2022/sessions", 120)
+            player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
+        except TimeoutException as e:
+            logger.error(e)
+            logger.error("Session timeout - Proceeding to reboot")
+            self.reboot()
+        return player_cookie
+
+    def reboot(self):
+        logger.info("Shutdown for login session")
+        Process().terminate()
