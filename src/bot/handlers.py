@@ -1,18 +1,11 @@
 import datetime
 from typing import List
 
-import requests  # type: ignore
-
 from adapters.leaderboard_adapters import (
     entrant_to_pretty_input,
     league_standing_to_pretty_table,
-    to_league_standings,
 )
-from adapters.picked_player_adapters import (
-    picked_players_to_pretty_table,
-    to_picked_players,
-)
-from adapters.season_adapters import to_races
+from adapters.picked_player_adapters import picked_players_to_pretty_table
 from bot.telegram_command import (
     COMMANDS,
     TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
@@ -22,9 +15,11 @@ from bot.telegram_command import (
     TELEGRAM_START_COMMAND,
 )
 from core.error import Error
+
+from services.f1_fantasy_service import F1FantasyService
+
 from telegram import InlineKeyboardMarkup, ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler, Handler
-from utils.http import decode_http_response
 
 
 def help_bot_handler():
@@ -40,20 +35,16 @@ def help_bot_handler():
     return help_message
 
 
-def get_standings_handler(cookies: str, league_id: str):
+def get_standings_handler(f1_fantasy_service: F1FantasyService):
     def get_f1_fantasy_standings(update: Update, context: CallbackContext):
-        f1_fantasy_standings_req = requests.get(
-            url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",  # noqa: E501
-            headers={"Cookie": cookies},
-        )
-        standings = decode_http_response(f1_fantasy_standings_req, to_league_standings)
-        if isinstance(standings, Error):
+        league_standing = f1_fantasy_service.get_league_standing()
+        if isinstance(league_standing, Error):
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text="It wasn't possible to retrieve the standing",
             )
         else:
-            message = league_standing_to_pretty_table(standing=standings)
+            message = league_standing_to_pretty_table(standing=league_standing)
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=f"<pre>{message}</pre>",
@@ -64,114 +55,68 @@ def get_standings_handler(cookies: str, league_id: str):
 
 
 def get_last_race_standing_handler(
-    cookies: str, league_id: str, now: datetime.datetime
+    now: datetime.datetime,
+    f1_fantasy_service: F1FantasyService,
 ):
     def get_last_f1_fantasy_race_standing(update: Update, context: CallbackContext):
         default_error_message = "It wasn't possible to retrieve the standing"
-        req = requests.get(
-            url="https://fantasy-api.formula1.com/f1/2022?v=1",
-            headers={"Cookie": cookies},
-        )
 
-        season_races = decode_http_response(req, to_races)
-
-        if isinstance(season_races, Error):
+        last_race = f1_fantasy_service.get_last_completed_race(season=now.year, now=now)
+        if isinstance(last_race, Error):
             context.bot.send_message(
                 chat_id=update.effective_chat.id, text=default_error_message
             )
         else:
-            last_race_list = list(
-                filter(
-                    lambda race: race.start_timestamp < now
-                    and race.status == "results",
-                    season_races,
-                )
+            last_race_standings = f1_fantasy_service.get_last_race_standing(
+                race_id=last_race.id
             )
-
-            if not last_race_list:
+            if isinstance(last_race_standings, Error):
                 context.bot.send_message(
                     chat_id=update.effective_chat.id, text=default_error_message
                 )
             else:
-                last_race = last_race_list.pop()
-
-                last_race_standings_req = requests.get(
-                    url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&game_period_id={last_race.id}&league_id={league_id}",  # noqa: E501
-                    headers={"Cookie": cookies},
+                message = league_standing_to_pretty_table(standing=last_race_standings)
+                message.title = last_race.name
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=f"<pre>{message}</pre>",
+                    parse_mode=ParseMode.HTML,
                 )
-
-                last_race_standings = decode_http_response(
-                    last_race_standings_req, to_league_standings
-                )
-                if isinstance(last_race_standings, Error):
-                    context.bot.send_message(
-                        chat_id=update.effective_chat.id, text=default_error_message
-                    )
-                else:
-                    message = league_standing_to_pretty_table(
-                        standing=last_race_standings
-                    )
-                    message.title = last_race.name
-                    context.bot.send_message(
-                        chat_id=update.effective_chat.id,
-                        text=f"<pre>{message}</pre>",
-                        parse_mode=ParseMode.HTML,
-                    )
 
     return get_last_f1_fantasy_race_standing
 
 
-def get_last_race_team_standing_handler(cookies: str, league_id: str):
+def get_last_race_team_standing_handler(f1_fantasy_service: F1FantasyService):
     def get_f1_last_race_team_standing_handler(
         update: Update, context: CallbackContext
     ) -> None:
-        f1_fantasy_standings_req = requests.get(
-            url=f"https://fantasy-api.formula1.com/f1/2022/leaderboards/leagues?v=1&league_id={league_id}",  # noqa: E501
-            headers={"Cookie": cookies},
-        )
-        standings = decode_http_response(f1_fantasy_standings_req, to_league_standings)
+        standings = f1_fantasy_service.get_league_standing()
         inputs = entrant_to_pretty_input(standings)
-        reply_markup = InlineKeyboardMarkup(inputs)
-
-        update.message.reply_text("Please choose:", reply_markup=reply_markup)
+        update.message.reply_text(
+            "Please choose:", reply_markup=InlineKeyboardMarkup(inputs)
+        )
 
     return get_f1_last_race_team_standing_handler
 
 
 def get_last_race_team_standing_handler_button(
-    cookies: str, now: datetime.datetime, f1_all_players: dict
+    now: datetime.datetime,
+    f1_all_players: dict,
+    f1_fantasy_service: F1FantasyService,
 ):
     def get_f1_last_race_team_standing_handler_button(
         update: Update, context: CallbackContext
     ) -> None:
-
         query = update.callback_query
 
         query.answer()
         user_global_id = query.data
 
-        req = requests.get(
-            url="https://fantasy-api.formula1.com/f1/2022?v=1",
-            headers={"Cookie": cookies},
-        )
+        # season parameter hardcoded to current year at the moment
+        last_race = f1_fantasy_service.get_last_completed_race(season=now.year, now=now)
 
-        season_races = decode_http_response(req, to_races)
-
-        last_race_list = list(
-            filter(
-                lambda race: race.start_timestamp < now and race.status == "results",
-                season_races,
-            )
-        )
-        last_race = last_race_list.pop()
-
-        f1_fantasy_standing_team_req = requests.get(
-            url=f"https://fantasy-api.formula1.com/f1/2022/picked_teams/for_slot?v=1&game_period_id={last_race.id}&slot=1&user_global_id={user_global_id}",  # noqa: E501
-            headers={"Cookie": cookies},
-        )
-
-        picked_players = decode_http_response(
-            f1_fantasy_standing_team_req, to_picked_players(f1_all_players)
+        picked_players = f1_fantasy_service.get_last_race_team_standing(
+            race_id=last_race.id, user_id=user_global_id, f1_drivers=f1_all_players
         )
         message = picked_players_to_pretty_table(
             picked_players=picked_players, last_race=last_race
@@ -186,7 +131,10 @@ def get_last_race_team_standing_handler_button(
 
 
 # FIXME: find a way to use what is in telegram_command.py to avoid duplication
-def get_handlers(cookies: str, league_id: str, drivers: dict) -> List[Handler]:
+def get_handlers(
+    drivers: dict,
+    f1_fantasy_service: F1FantasyService,
+) -> List[Handler]:
     return [
         CommandHandler(
             [TELEGRAM_START_COMMAND, TELEGRAM_HELP_COMMAND],
@@ -194,21 +142,24 @@ def get_handlers(cookies: str, league_id: str, drivers: dict) -> List[Handler]:
         ),
         CommandHandler(
             TELEGRAM_FANTASY_STANDING_COMMAND,
-            get_standings_handler(cookies=cookies, league_id=league_id),
+            get_standings_handler(f1_fantasy_service=f1_fantasy_service),
         ),
         CommandHandler(
             TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
             get_last_race_standing_handler(
-                cookies=cookies, league_id=league_id, now=datetime.datetime.now()
+                now=datetime.datetime.now(),
+                f1_fantasy_service=f1_fantasy_service,
             ),
         ),
         CommandHandler(
             TELEGRAM_FANTASY_TEAM_COMMAND,
-            get_last_race_team_standing_handler(cookies=cookies, league_id=league_id),
+            get_last_race_team_standing_handler(f1_fantasy_service=f1_fantasy_service),
         ),
         CallbackQueryHandler(
             get_last_race_team_standing_handler_button(
-                cookies=cookies, now=datetime.datetime.now(), f1_all_players=drivers
+                now=datetime.datetime.now(),
+                f1_all_players=drivers,
+                f1_fantasy_service=f1_fantasy_service,
             )
         ),
     ]

@@ -46,7 +46,7 @@ def entrant_to_pretty_input(
     for i in range(len(standing.entrants)):
         if i % 3 == 0:
             keyboard.append(tmp)
-            tmp: list[InlineKeyboardButton] = []
+            tmp = []
         tmp.append(
             InlineKeyboardButton(
                 standing.entrants[i].user.username,

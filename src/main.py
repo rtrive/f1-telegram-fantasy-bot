@@ -1,6 +1,5 @@
 import os
 import sys
-from logging import Logger
 
 import requests  # type: ignore
 
@@ -11,36 +10,18 @@ from bot.telegram_bot import Bot
 
 from core.configuration import Configuration, validate_configuration
 from dotenv import load_dotenv
+
+from http_client import HTTPClient
 from http_server import start as http_server_start
 from logger import create_logger
-from psutil import Process
-from selenium.common.exceptions import TimeoutException
 from seleniumwire.undetected_chromedriver import (  # type: ignore
-    Chrome as uc_chrome,
     ChromeOptions as uc_chrome_options,
 )
+
+from services.f1_fantasy_service import F1FantasyService
 from uc_driver import ChromeDriver
 
 LOG_FORMAT = "[%(levelname)s] %(asctime)s - %(filename)s - %(funcName)s: %(message)s"
-
-
-def reboot(log: Logger):
-    log.info("Shutdown for login session")
-    Process().terminate()
-
-
-def get_player_cookie(log: Logger, driver: uc_chrome) -> str:
-    player_cookie = ""
-    log.debug("Get session cookie")
-    try:
-        driver.wait_for_request("/v2/account/subscriber/authenticate/by-password", 120)
-        request = driver.wait_for_request("/f1/2022/sessions", 120)
-        player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
-    except TimeoutException as e:
-        log.error(e)
-        log.error("Session timeout - Proceeding to reboot")
-        reboot(log)
-    return player_cookie
 
 
 if __name__ == "__main__":
@@ -55,10 +36,6 @@ if __name__ == "__main__":
         log.error(errors.message)
         sys.exit()
     log.info("Startup")
-
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=reboot, trigger="interval", hours=24, kwargs={"log": log})
-    scheduler.start()
 
     log.info("Starting HTTP server")
     http_server_start(
@@ -79,11 +56,18 @@ if __name__ == "__main__":
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
     )
+
+    log.info("Scheduling restart")
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=driver.reboot, trigger="interval", hours=24)
+    scheduler.start()
+
+    log.info("Performing login")
     driver.login(
         url=configuration.f1_fantasy.login_url,
         credentials=configuration.f1_fantasy.credentials,
     )
-    cookies = get_player_cookie(log=log, driver=driver)
+    cookies = driver.get_player_cookie()
     driver.close()
 
     fantasy_bot = Bot(
@@ -99,11 +83,24 @@ if __name__ == "__main__":
     for f1_driver in f1_drivers:
         f1_all_drivers[f1_driver["id"]] = f1_driver["last_name"]
 
-    log.info("Telegram registering handlers")
-    handlers = get_handlers(
+    log.info("Creating F1 Fantasy base HTTP client")
+    f1_fantasy_http_client = HTTPClient(
+        base_url="https://fantasy-api.formula1.com",
+    )
+    log.info("Creating Season Service")
+    f1_fantasy_service = F1FantasyService(
+        http_client=f1_fantasy_http_client,
+        logger=create_logger(
+            "f1-fantasy-service", level=configuration.log.log_level, format=LOG_FORMAT
+        ),
         cookies=cookies,
         league_id=configuration.f1_fantasy.league_id,
+    )
+
+    log.info("Telegram registering handlers")
+    handlers = get_handlers(
         drivers=f1_all_drivers,
+        f1_fantasy_service=f1_fantasy_service,
     )
     for handler in handlers:
         fantasy_bot.dispatcher.add_handler(handler=handler)
