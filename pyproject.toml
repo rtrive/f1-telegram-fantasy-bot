@@ -6,7 +6,7 @@ authors = ["Riccardo Trivellato <6997999+rtrive@users.noreply.github.com>", "Mar
 
 [tool.poetry.dependencies]
 python = "^3.9"
-selenium = "^4.2.0"
+selenium = "^4.3.0"
 python-dotenv = "^0.20.0"
 undetected-chromedriver = "^3.1.5"
 selenium-wire = "^4.6.4"
