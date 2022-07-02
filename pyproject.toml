@@ -5,7 +5,7 @@ description = ""
 authors = ["Riccardo Trivellato <6997999+rtrive@users.noreply.github.com>", "Marco Comi <marco.comi@aol.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 selenium = "^4.3.0"
 python-dotenv = "^0.20.0"
 undetected-chromedriver = "^3.1.5"
