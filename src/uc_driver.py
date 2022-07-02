@@ -62,9 +62,6 @@ class ChromeDriver:
         player_cookie = ""
         logger.debug("Get session cookie")
         try:
-            self.driver.wait_for_request(
-                "/v2/account/subscriber/authenticate/by-password", 120
-            )
             request = self.driver.wait_for_request("/f1/2022/sessions", 120)
             player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]
         except TimeoutException as e:

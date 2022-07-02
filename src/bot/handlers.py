@@ -1,4 +1,5 @@
 import datetime
+import logging
 from typing import List
 
 from adapters.leaderboard_adapters import (
@@ -9,17 +10,20 @@ from adapters.picked_player_adapters import picked_players_to_pretty_table
 from bot.telegram_command import (
     COMMANDS,
     TELEGRAM_FANTASY_LAST_GP_STANDING_COMMAND,
+    TELEGRAM_FANTASY_LINEUP_REMINDER,
     TELEGRAM_FANTASY_STANDING_COMMAND,
     TELEGRAM_FANTASY_TEAM_COMMAND,
     TELEGRAM_HELP_COMMAND,
     TELEGRAM_START_COMMAND,
 )
 from core.error import Error
-
 from services.f1_fantasy_service import F1FantasyService
 
 from telegram import InlineKeyboardMarkup, ParseMode, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler, Handler
+
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.DEBUG)
 
 
 def help_bot_handler():
@@ -130,6 +134,59 @@ def get_last_race_team_standing_handler_button(
     return get_f1_last_race_team_standing_handler_button
 
 
+def get_valid_lineup_reminder_minutes(minutes: List[str]) -> List[float]:
+    if not minutes:
+        return [30]
+
+    final_minutes = []
+    for minute in minutes:
+        try:
+            m = float(minute)
+            if m > 0:
+                final_minutes.append(m)
+        except (IndexError, ValueError):
+            pass
+    return final_minutes
+
+
+def set_lineup_reminders_handler(
+    f1_fantasy_service: F1FantasyService, now: datetime.datetime
+):
+    def set_lineup_reminders(update: Update, context: CallbackContext):
+
+        minutes = get_valid_lineup_reminder_minutes(context.args)
+
+        season_races = f1_fantasy_service.get_season_races(season=now.year)
+        next_races = list(filter(lambda r: r.start_timestamp > now, season_races))
+
+        chat_id = update.message.chat_id
+        user_id = update.effective_user.id
+
+        for race in next_races:
+            job_name = f"{race.id}-{user_id}"
+            # Schedule the reminders only if not already present
+            if not context.job_queue.get_jobs_by_name(job_name):
+                for minute in minutes:
+                    remind_at = race.start_timestamp - datetime.timedelta(
+                        minutes=minute
+                    )
+                    context.job_queue.run_once(
+                        callback=send_lineup_reminder,
+                        when=remind_at,
+                        context=str(chat_id),
+                        name=job_name,
+                    )
+            else:
+                logger.debug(
+                    f"Already set a reminder for race {race.name} "
+                    f"for user {update.effective_user.id}"
+                )
+
+        update.message.reply_text("I will remind you")
+
+    return set_lineup_reminders
+
+
 # FIXME: find a way to use what is in telegram_command.py to avoid duplication
 def get_handlers(
     drivers: dict,
@@ -162,4 +219,18 @@ def get_handlers(
                 f1_fantasy_service=f1_fantasy_service,
             )
         ),
+        CommandHandler(
+            TELEGRAM_FANTASY_LINEUP_REMINDER,
+            set_lineup_reminders_handler(
+                now=datetime.datetime.now(),
+                f1_fantasy_service=f1_fantasy_service,
+            ),
+        ),
     ]
+
+
+def send_lineup_reminder(context: CallbackContext) -> None:
+    job = context.job
+    context.bot.send_message(
+        job.context, text="Hey buddy, it's time to make the lineup for the upcoming GP!"
+    )
