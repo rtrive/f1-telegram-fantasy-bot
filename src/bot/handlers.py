@@ -161,30 +161,40 @@ def set_lineup_reminders_handler(
 
         chat_id = update.message.chat_id
         user_id = update.effective_user.id
+        job_removed = False
 
+        update.message.reply_text("Setting reminder...")
         for race in next_races:
             job_name = f"{race.id}-{user_id}"
             # Schedule the reminders only if not already present
-            if not context.job_queue.get_jobs_by_name(job_name):
-                for minute in minutes:
-                    remind_at = race.start_timestamp - datetime.timedelta(
-                        minutes=minute
-                    )
-                    context.job_queue.run_once(
-                        callback=send_lineup_reminder,
-                        when=remind_at,
-                        context=str(chat_id),
-                        name=job_name,
-                    )
-            else:
-                logger.debug(
-                    f"Already set a reminder for race {race.name} "
-                    f"for user {update.effective_user.id}"
+            for minute in minutes:
+                remind_at = race.start_timestamp - datetime.timedelta(
+                    minutes=minute
                 )
-
-        update.message.reply_text("I will remind you")
+                job_removed = remove_job_if_exists(job_name, context)
+                context.job_queue.run_once(
+                    callback=send_lineup_reminder,
+                    when=remind_at,
+                    context=str(chat_id),
+                    name=job_name,
+                )
+        text = f"I will remind you {minutes} before the deadline."
+        if job_removed:
+            text += "\nOld reminders were removed."
+        update.message.reply_text(text)
 
     return set_lineup_reminders
+
+
+def remove_job_if_exists(name: str, context: CallbackContext) -> bool:
+    """Remove job with given name. Returns whether job was removed."""
+    logger.debug("Remove job")
+    current_jobs = context.job_queue.get_jobs_by_name(name)
+    if not current_jobs:
+        return False
+    for job in current_jobs:
+        job.schedule_removal()
+    return True
 
 
 # FIXME: find a way to use what is in telegram_command.py to avoid duplication
