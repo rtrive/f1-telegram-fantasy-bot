@@ -58,7 +58,7 @@ class Configuration:
             ),
             login_url=env_variables.get(
                 "F1_FANTASY_LOGIN_URL",
-                default="https://account.formula1.com/#/en/login?lead_source=web_fantasy&redirect=https%3A%2F%2Ffantasy.formula1.com%2Fapp%2F%23%2F",  # noqa: E501
+                default="https://account.formula1.com/#/en/login",  # noqa: E501
             ),
             league_id=env_variables.get("F1_FANTASY_LEAGUE_ID"),
         )
