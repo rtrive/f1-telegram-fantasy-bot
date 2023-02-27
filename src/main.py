@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -75,8 +75,10 @@ if __name__ == "__main__":
     )
 
     log.info("Loading drivers")
+
     f1_drivers_req = requests.get(
-        url="https://fantasy-api.formula1.com/f1/2022/players"
+        url="https://fantasy.formula1.com/services/user/leaderboard/54826150-b6c2-11ed-8a24-02c8e3663a0b/h2htoprankget/1/196704/0/1/1/10/?buster=1677521363114'",
+        cookies={"Cookie": cookies}
     )
     f1_drivers = f1_drivers_req.json()["players"]
     f1_all_drivers = {}
@@ -85,7 +87,7 @@ if __name__ == "__main__":
 
     log.info("Creating F1 Fantasy base HTTP client")
     f1_fantasy_http_client = HTTPClient(
-        base_url="https://fantasy-api.formula1.com",
+        base_url="https://fantasy.formula1.com",
     )
     log.info("Creating Season Service")
     f1_fantasy_service = F1FantasyService(
