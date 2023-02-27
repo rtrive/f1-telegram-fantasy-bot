@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     chrome_options = uc_chrome_options()
     chrome_options.add_argument("--blink-settings=imagesEnabled=false")
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -86,8 +86,6 @@ if __name__ == "__main__":
     for f1_driver in f1_drivers:
         if f1_driver["PositionName"] == "DRIVER":
             f1_all_drivers[int(f1_driver["PlayerId"])] = f1_driver["FUllName"].split(" ")[1]
-
-    log.info(f1_all_drivers)
 
     log.info("Creating F1 Fantasy base HTTP client")
     f1_fantasy_http_client = HTTPClient(
