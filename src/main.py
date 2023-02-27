@@ -77,13 +77,17 @@ if __name__ == "__main__":
     log.info("Loading drivers")
 
     f1_drivers_req = requests.get(
-        url="https://fantasy.formula1.com/services/user/leaderboard/54826150-b6c2-11ed-8a24-02c8e3663a0b/h2htoprankget/1/196704/0/1/1/10/?buster=1677521363114'",
+        url="https://fantasy.formula1.com/feeds/drivers/1_en.json?buster=20230227110410",
         cookies={"Cookie": cookies}
     )
-    f1_drivers = f1_drivers_req.json()["players"]
+
+    f1_drivers = f1_drivers_req.json()["Data"]["Value"]
     f1_all_drivers = {}
     for f1_driver in f1_drivers:
-        f1_all_drivers[f1_driver["id"]] = f1_driver["last_name"]
+        if f1_driver["PositionName"] == "DRIVER":
+            f1_all_drivers[int(f1_driver["PlayerId"])] = f1_driver["FUllName"].split(" ")[1]
+
+    log.info(f1_all_drivers)
 
     log.info("Creating F1 Fantasy base HTTP client")
     f1_fantasy_http_client = HTTPClient(
