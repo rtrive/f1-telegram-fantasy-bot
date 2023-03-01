@@ -17,7 +17,7 @@ def to_race_status(race_state: str) -> RaceStatus:
 def to_race(game_period: dict) -> Race:
     return Race(
         race_id=game_period["RaceId"],
-        name=game_period["MeetingLocation"],
+        name=game_period["MeetingName"],
         starts_at=datetime.strptime(
             game_period["SessionStartDate"], "%Y-%m-%dT%H:%M:%S.%fZ"
         ),
