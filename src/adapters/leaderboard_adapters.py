@@ -11,8 +11,8 @@ from telegram import InlineKeyboardButton
 def to_leaderboard_entrant(leaderboard_entrant: dict) -> LeaderboardEntrant:
     return LeaderboardEntrant(
         user=to_user(leaderboard_entrant),
-        score=leaderboard_entrant["score"],
-        team_name=leaderboard_entrant["team_name"],
+        score=leaderboard_entrant["ovPoint"],
+        team_name=leaderboard_entrant["teamName"],
     )
 
 
@@ -26,8 +26,9 @@ def to_leaderboard_entrants(
 
 
 def to_league_standings(json: dict) -> LeagueStanding:
+    league_standings = json["Data"]["Value"]["memRank"]
     return LeagueStanding(
-        entrants=to_leaderboard_entrants(json["leaderboard"]["leaderboard_entrants"])
+        entrants=to_leaderboard_entrants(league_standings)
     )
 
 
