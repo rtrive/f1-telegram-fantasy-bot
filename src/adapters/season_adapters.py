@@ -33,5 +33,5 @@ def to_races(
     response = []
     for race in races:
         if race["SessionType"] == "Race":
-            response.append(race)
+            response.append(to_race(race))
     return response
