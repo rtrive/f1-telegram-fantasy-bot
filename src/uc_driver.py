@@ -68,7 +68,7 @@ class ChromeDriver:
 
             # F1_FANTASY_007 COOKIE
             f1_fantasy_007_cookie = request.response.headers.get("Set-Cookie").split(";")[0]  
-            player_cookie = player_cookie + ";" + matches[0]
+            player_cookie = f1_fantasy_007_cookie + ";" + login_session_cookie[0]
         except TimeoutException as e:
             logger.error(e)
             logger.error("Session timeout - Proceeding to reboot")
