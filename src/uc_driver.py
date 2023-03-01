@@ -64,7 +64,7 @@ class ChromeDriver:
         try:
             request = self.driver.wait_for_request("/services/session/login", 120)
             request_cookies = request.headers.get("Cookie").split(";")
-            matches = [match for match in request_cookies if "login-session" in match]
+            login_session_cookie = [match for match in request_cookies if "login-session" in match]
 
             # F1_FANTASY_007 COOKIE
             player_cookie = request.response.headers.get("Set-Cookie").split(";")[0]  
