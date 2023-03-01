@@ -54,13 +54,11 @@ class F1FantasyService:
 
     """Get the league standing"""
 
-    # https://fantasy.formula1.com/services/user/leaderboard/f820ec0c-b6c0-11ed-bb38-02c8e3663a0b/pvtleagueuserrankget/1/2102210/0/1/1/10/?buster=1677520020910
-
     def get_league_standing(self) -> Union[Error, LeagueStanding]:
         self.logger.debug("Get league standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
-            path=f"/f1/2022/leaderboards/leagues?v=1&league_id={self.league_id}",
+            path=f"/services/user/leaderboard/{self.league_id}/pvtleagueuserrankget/1/2102210/0/1/1/10/",
             headers={"Cookie": self.cookies},
             decoder=to_league_standings,
         )
