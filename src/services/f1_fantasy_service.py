@@ -23,7 +23,7 @@ class F1FantasyService:
 
     """Get the races for the season."""
 
-    def get_season_races(self, season: int) -> Union[Error, List[Race]]:
+    def get_season_races(self) -> Union[Error, List[Race]]:
         self.logger.debug("Getting all season")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
