@@ -84,7 +84,7 @@ if __name__ == "__main__":
                                        "__uidts__": 1740940828}
     # URL Encode the object
     # FIXME
-    min_unified_session_token10 = urllib.parse.quote(min_unified_session_token10_raw)
+    min_unified_session_token10 = urllib.parse.quote_plus(json.dumps(min_unified_session_token10_raw))
 
     by_password_url = "https://fantasy.formula1.com/services/session/login"
     by_password_payload = json.dumps({
