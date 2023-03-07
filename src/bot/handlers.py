@@ -65,7 +65,7 @@ def get_last_race_standing_handler(
     def get_last_f1_fantasy_race_standing(update: Update, context: CallbackContext):
         default_error_message = "It wasn't possible to retrieve the standing"
 
-        last_race = f1_fantasy_service.get_last_completed_race(season=now.year, now=now)
+        last_race = f1_fantasy_service.get_last_completed_race(now=now)
         if isinstance(last_race, Error):
             context.bot.send_message(
                 chat_id=update.effective_chat.id, text=default_error_message
