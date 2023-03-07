@@ -11,7 +11,7 @@ from telegram import InlineKeyboardButton
 def to_leaderboard_entrant(leaderboard_entrant: dict) -> LeaderboardEntrant:
     return LeaderboardEntrant(
         user=to_user(leaderboard_entrant),
-        score=leaderboard_entrant["ovPoint"],
+        score=leaderboard_entrant["ovPoints"],
         team_name=leaderboard_entrant["teamName"],
     )
 
