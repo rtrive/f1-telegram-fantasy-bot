@@ -11,6 +11,8 @@ from core.picked_player import PickedPlayer
 from core.race import Race, RaceStatus
 from http_client import HTTPClient, HTTPMethod
 
+LEAGUE_ID = "14886408"
+
 
 class F1FantasyService:
     def __init__(
@@ -34,10 +36,8 @@ class F1FantasyService:
 
     """Get the last completed race"""
 
-    def get_last_completed_race(
-        self, season: int, now: datetime.datetime
-    ) -> Union[Error, Race]:
-        races = self.get_season_races(season=season)
+    def get_last_completed_race(self, now: datetime.datetime) -> Union[Error, Race]:
+        races = self.get_season_races()
         if not isinstance(races, Error):
             last_race = list(
                 filter(
@@ -69,7 +69,7 @@ class F1FantasyService:
         self.logger.debug("Getting last race standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
-            path=f"/f1/2022/leaderboards/leagues?v=1&game_period_id={race_id}&league_id={self.league_id}",  # noqa: E501
+            path=f"/services/user/leaderboard/{self.league_id}/pvtleagueuserrankget/{race_id}/{LEAGUE_ID}/1/1/1/10/",  # noqa: E501
             headers={"Cookie": self.cookies},
             decoder=to_league_standings,
         )
