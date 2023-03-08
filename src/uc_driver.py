@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ChromeDriver:
     def __init__(self, options: ChromeOptions, seleniumwire_options: dict):
         self.driver = uc_chrome(
-            options=options, seleniumwire_options=seleniumwire_options
+            options=options, seleniumwire_options=seleniumwire_options, version_main=110
         )
 
     def go_to_page(self, url: str) -> None:
@@ -64,10 +64,14 @@ class ChromeDriver:
         try:
             request = self.driver.wait_for_request("/services/session/login", 120)
             request_cookies = request.headers.get("Cookie").split(";")
-            login_session_cookie = [match for match in request_cookies if "login-session" in match]
+            login_session_cookie = [
+                match for match in request_cookies if "login-session" in match
+            ]
 
             # F1_FANTASY_007 COOKIE
-            f1_fantasy_007_cookie = request.response.headers.get("Set-Cookie").split(";")[0]  
+            f1_fantasy_007_cookie = request.response.headers.get("Set-Cookie").split(
+                ";"
+            )[0]
             player_cookie = f1_fantasy_007_cookie + ";" + login_session_cookie[0]
         except TimeoutException as e:
             logger.error(e)

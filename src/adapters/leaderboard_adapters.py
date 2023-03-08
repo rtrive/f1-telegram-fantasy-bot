@@ -51,7 +51,7 @@ def entrant_to_pretty_input(
         tmp.append(
             InlineKeyboardButton(
                 standing.entrants[i].user.username,
-                callback_data=standing.entrants[i].user.global_id,
+                callback_data=standing.entrants[i].user.user_id,
             )
         )
     keyboard.append(tmp)

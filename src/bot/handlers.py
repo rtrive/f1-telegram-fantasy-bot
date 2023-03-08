@@ -117,8 +117,7 @@ def get_last_race_team_standing_handler_button(
         user_global_id = query.data
 
         # season parameter hardcoded to current year at the moment
-        last_race = f1_fantasy_service.get_last_completed_race(season=now.year, now=now)
-
+        last_race = f1_fantasy_service.get_last_completed_race(now=now)
         picked_players = f1_fantasy_service.get_last_race_team_standing(
             race_id=last_race.id, user_id=user_global_id, f1_drivers=f1_all_players
         )
