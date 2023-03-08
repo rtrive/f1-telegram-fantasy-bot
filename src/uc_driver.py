@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ChromeDriver:
     def __init__(self, options: ChromeOptions, seleniumwire_options: dict):
         self.driver = uc_chrome(
-            options=options, seleniumwire_options=seleniumwire_options
+            options=options, seleniumwire_options=seleniumwire_options, version_main=110
         )
 
     def go_to_page(self, url: str) -> None:
