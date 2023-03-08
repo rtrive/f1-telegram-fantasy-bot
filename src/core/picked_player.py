@@ -1,12 +1,10 @@
 class PickedPlayer:
     def __init__(
         self,
-        player_id: int,
+        player_id: str,
         player_name: str,
         team_name: str,
         team_abbreviation: str,
-        position: str,
-        position_abbreviation: str,
         score: int,
     ):
         self.player_id = player_id
