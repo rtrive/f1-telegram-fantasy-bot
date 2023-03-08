@@ -82,7 +82,7 @@ class F1FantasyService:
         self.logger.debug("Getting last race team standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
-            path=f"/f1/2022/picked_teams/for_slot?v=1&game_period_id={race_id}&slot=1&user_global_id={user_id}",  # noqa: E501
+            path=f"/services/user/opponentteam/opponentgamedayplayerteamget/{race_id}/{user_id}/1/1/1",  # noqa: E501 TO BE CHECKED AFTER SECOND RACE
             headers={"Cookie": self.cookies},
             decoder=to_picked_players(f1_drivers),
         )
