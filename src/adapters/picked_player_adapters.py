@@ -9,7 +9,7 @@ def to_picked_players(players: dict):
     def from_json_to_picked_players(json: dict) -> List[PickedPlayer]:
         return [
             to_picked_player(picked_player, players)
-            for picked_player in json["picked_team"]["picked_players"]
+            for picked_player in json["Data"]["Value"]
         ]
 
     return from_json_to_picked_players
@@ -17,13 +17,11 @@ def to_picked_players(players: dict):
 
 def to_picked_player(json: dict, players: dict) -> PickedPlayer:
     return PickedPlayer(
-        player_id=json["player_id"],
-        player_name=players[json["player_id"]],
-        team_name=json["team_name"],
-        team_abbreviation=json["team_abbreviation"],
-        position=json["position"],
-        position_abbreviation=json["position_abbreviation"],
-        score=json["score"],
+        player_id=json["PlayerId"],
+        player_name=players[json["DisplayName"]],
+        team_name=json["TeamName"],
+        team_abbreviation=json["TeamName"],
+        score=json["GamedayPoints"],
     )
 
 

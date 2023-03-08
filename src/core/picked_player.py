@@ -13,6 +13,4 @@ class PickedPlayer:
         self.player_name = player_name
         self.team_name = team_name
         self.team_abbreviation = team_abbreviation
-        self.position = position
-        self.position_abbreviation = position_abbreviation
         self.score = score
