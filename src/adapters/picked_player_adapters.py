@@ -9,7 +9,7 @@ def to_picked_players(players: dict):
     def from_json_to_picked_players(json: dict) -> List[PickedPlayer]:
         return [
             to_picked_player(picked_player, players)
-            for picked_player in json["Data"]["Value"]
+            for picked_player in json["Data"]["Value"]["userTeam"][0]["playerid"]
         ]
 
     return from_json_to_picked_players
@@ -17,11 +17,11 @@ def to_picked_players(players: dict):
 
 def to_picked_player(json: dict, players: dict) -> PickedPlayer:
     return PickedPlayer(
-        player_id=json["PlayerId"],
-        player_name=players[json["DisplayName"]],
-        team_name=json["TeamName"],
-        team_abbreviation=json["TeamName"],
-        score=json["GamedayPoints"],
+        player_id=json["id"],
+        player_name=players[int(json["id"])]["DisplayName"],
+        team_name=players[int(json["id"])]["TeamName"],
+        team_abbreviation=players[int(json["id"])]["TeamName"],
+        score=players[int(json["id"])]["GamedayPoints"],
     )
 
 
@@ -34,7 +34,7 @@ def picked_players_to_pretty_table(
     for e in picked_players:
         table.add_row(
             [
-                f"{e.player_name}({e.position_abbreviation})",
+                e.player_name,
                 e.team_abbreviation,
                 e.score,
             ]
