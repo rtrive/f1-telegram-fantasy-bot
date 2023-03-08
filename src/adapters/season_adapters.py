@@ -30,7 +30,6 @@ def to_race(game_period: dict) -> Race:
 def to_races(
     json: dict,
 ) -> List[Race]:
-
     races = json["Data"]["Value"]
     response = []
     for race in races:

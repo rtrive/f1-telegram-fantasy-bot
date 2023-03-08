@@ -27,9 +27,7 @@ def to_leaderboard_entrants(
 
 def to_league_standings(json: dict) -> LeagueStanding:
     league_standings = json["Data"]["Value"]["memRank"]
-    return LeagueStanding(
-        entrants=to_leaderboard_entrants(league_standings)
-    )
+    return LeagueStanding(entrants=to_leaderboard_entrants(league_standings))
 
 
 def league_standing_to_pretty_table(standing: LeagueStanding) -> pt.PrettyTable:

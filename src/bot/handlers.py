@@ -116,7 +116,6 @@ def get_last_race_team_standing_handler_button(
         query.answer()
         user_global_id = query.data
 
-        # season parameter hardcoded to current year at the moment
         last_race = f1_fantasy_service.get_last_completed_race(now=now)
         picked_players = f1_fantasy_service.get_last_race_team_standing(
             race_id=last_race.id, user_id=user_global_id, f1_drivers=f1_all_players
@@ -152,10 +151,9 @@ def set_lineup_reminders_handler(
     f1_fantasy_service: F1FantasyService, now: datetime.datetime
 ):
     def set_lineup_reminders(update: Update, context: CallbackContext):
-
         minutes = get_valid_lineup_reminder_minutes(context.args)
 
-        season_races = f1_fantasy_service.get_season_races(season=now.year)
+        season_races = f1_fantasy_service.get_season_races()
         next_races = list(filter(lambda r: r.start_timestamp > now, season_races))
 
         chat_id = update.message.chat_id
@@ -167,9 +165,7 @@ def set_lineup_reminders_handler(
             job_name = f"{race.id}-{user_id}"
             # Schedule the reminders only if not already present
             for minute in minutes:
-                remind_at = race.start_timestamp - datetime.timedelta(
-                    minutes=minute
-                )
+                remind_at = race.start_timestamp - datetime.timedelta(minutes=minute)
                 job_removed = remove_job_if_exists(job_name, context)
                 context.job_queue.run_once(
                     callback=send_lineup_reminder,
