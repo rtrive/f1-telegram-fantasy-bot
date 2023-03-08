@@ -58,11 +58,7 @@ class F1FantasyService:
         self.logger.debug("Get league standing")
         return self.http_client.make_request(
             method=HTTPMethod.GET,
-<<<<<<< HEAD
             path=f"/services/user/leaderboard/{self.league_id}/pvtleagueuserrankget/1/2102210/0/1/1/10/",  # noqa: E501
-=======
-            path=f"/services/user/leaderboard/{self.league_id}/pvtleagueuserrankget/1/2102210/0/1/1/10/",
->>>>>>> 49ae8c7 (Users (#46))
             headers={"Cookie": self.cookies},
             decoder=to_league_standings,
         )
