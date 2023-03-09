@@ -53,6 +53,9 @@ if __name__ == "__main__":
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument('--disable-application-cache')
+    chrome_options.add_argument("--disable-setuid-sandbox")
     seleniumwire_options = {"connection_keep_alive": True, "disable_encoding": True}
     driver = ChromeDriver(
         options=chrome_options, seleniumwire_options=seleniumwire_options
